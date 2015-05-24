@@ -80,7 +80,7 @@ We are interested in:
 
 You will see mostly unintelligible text, you might see the monitor's model number.  
 You can use this to confirm this is indeed the edid file for the monitor.  
-If not, we can confirm in the next step.
+If not, we can confirm in one of the following steps.
 
 #####Get a new modeline using cvt.
 
