@@ -1,0 +1,946 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML 2.0//EN">
+<html>
+<head>
+<title>Video timing calculator</title>
+<script language="JavaScript">
+<!--Hide from old browsers
+
+function TwoDecimal(number) {
+  number=((Math.round(number*100)/100));
+  return number;
+}
+
+function OneDecimal(number) {
+  number=((Math.round(number*10)/10));
+  return number;
+}
+
+function MakeModeline(form){
+
+  B = parseInt(form.H_DISP.value) + parseInt(form.H_FPORCH.value);
+  C = B + parseInt(form.H_SYNC.value);
+  F = parseInt(form.V_DISP.value) + parseInt(form.V_FPORCH.value);
+  G = F + parseInt(form.V_SYNC.value);
+
+  if (form.INTERLACE.value == "1") {
+  F = parseInt(form.V_DISP.value) + 2*parseInt(form.V_FPORCH.value);
+  G = F + 2*parseInt(form.V_SYNC.value);
+  }
+
+  hsyncparam="";
+  if (form.HSYNCPOL.value == "1") {
+    hsyncparam="+hsync"
+  } ;
+  if (form.HSYNCPOL.value == "0") {
+    hsyncparam="-hsync"
+  }
+
+  vsyncparam="";
+  if (form.VSYNCPOL.value == "1") {
+    vsyncparam="+vsync"
+  } ;
+  if (form.VSYNCPOL.value == "0") {
+    vsyncparam="-vsync"
+  }
+
+  result = "Modeline \""+form.H_DISP.value+"x"+form.V_DISP.value+"\"   "+form.PIXEL_CLK.value+"   "+form.H_DISP.value+" "+B+" "+C+" "+form.HTOTAL.value+"   "+form.V_DISP.value+" "+F+" "+G+" "+form.VTOTAL.value+"  "+hsyncparam+" "+vsyncparam;
+  if (form.INTERLACE.value == "1") result=result+" Interlace";
+  return result;
+}
+
+function MakeMatroxmon(form){
+
+  result="[*User-Defined_mode,("+form.H_DISP.value+"X"+form.V_DISP.value+")]\r\n"
+        +"PIXEL_CLK   =   "+form.PIXEL_CLK.value*1000+"\r\n"
+        +"H_DISP   =   "+form.H_DISP.value+"\r\n"
+        +"H_FPORCH   =   "+form.H_FPORCH.value+"\r\n"
+        +"H_SYNC   =   "+form.H_SYNC.value+"\r\n"
+        +"H_BPORCH   =   "+form.H_BPORCH.value+"\r\n"
+        +"H_SYNC_POL   =   "+form.HSYNCPOL.value+"\r\n"
+        +"V_DISP   =   "+form.V_DISP.value+"\r\n"
+        +"V_FPORCH   =   "+form.V_FPORCH.value+"\r\n"
+        +"V_SYNC   =   "+form.V_SYNC.value+"\r\n"
+        +"V_BPORCH   =   "+form.V_BPORCH.value+"\r\n"
+        +"V_SYNC_POL   =   "+form.VSYNCPOL.value+"\r\n"
+        +"INTERLACE_ENABLE  =  "+form.INTERLACE.value+"\r\n";
+  if (form.INTERLACE.value == "1") {
+  result="[*User-Defined_mode,("+form.H_DISP.value+"X"+form.V_DISP.value+")]\r\n"
+        +"PIXEL_CLK   =   "+form.PIXEL_CLK.value*1000+"\r\n"
+        +"H_DISP   =   "+form.H_DISP.value+"\r\n"
+        +"H_FPORCH   =   "+form.H_FPORCH.value+"\r\n"
+        +"H_SYNC   =   "+form.H_SYNC.value+"\r\n"
+        +"H_BPORCH   =   "+form.H_BPORCH.value+"\r\n"
+        +"H_SYNC_POL   =   "+form.HSYNCPOL.value+"\r\n"
+        +"V_DISP   =   "+Math.round(form.V_DISP.value/2)+"\r\n"
+        +"V_FPORCH   =   "+form.V_FPORCH.value+"\r\n"
+        +"V_SYNC   =   "+form.V_SYNC.value+"\r\n"
+        +"V_BPORCH   =   "+form.V_BPORCH.value+"\r\n"
+        +"V_SYNC_POL   =   "+form.VSYNCPOL.value+"\r\n"
+        +"INTERLACE_ENABLE  =  1\r\n";
+  }
+  return result;
+}
+
+function MakeWin95inf(form){
+
+  hsyncparam="";
+  if (form.HSYNCPOL.value == "1") {
+    hsyncparam="+"
+  } ;
+  if (form.HSYNCPOL.value == "0") {
+    hsyncparam="-"
+  }
+
+  vsyncparam="";
+  if (form.VSYNCPOL.value == "1") {
+    vsyncparam="+"
+  } ;
+  if (form.VSYNCPOL.value == "0") {
+    vsyncparam="-"
+  }
+
+  result="HKR,\"MODES\\"+form.H_DISP.value+","+form.V_DISP.value+"\",Mode1,,\""+OneDecimal(parseFloat(form.HFREQ.value))+","+OneDecimal(parseFloat(form.VFREQ.value))+","+hsyncparam+","+vsyncparam+"\"";
+  if (form.INTERLACE.value == "1") result="Interlaced modes not supported";
+  return result;
+}
+
+function compute (form) {
+  form.HTOTAL.value = TwoDecimal(parseFloat(form.H_DISP.value)+parseFloat(form.H_FPORCH.value)+parseFloat(form.H_SYNC.value)+parseFloat(form.H_BPORCH.value));
+  form.VTOTAL.value = TwoDecimal(parseFloat(form.V_DISP.value)+parseFloat(form.V_FPORCH.value)+parseFloat(form.V_SYNC.value)+parseFloat(form.V_BPORCH.value));
+  if (form.INTERLACE.value == "1")   form.VTOTAL.value = TwoDecimal(parseFloat(form.V_DISP.value)+2*parseFloat(form.V_FPORCH.value)+2*parseFloat(form.V_SYNC.value)+2*parseFloat(form.V_BPORCH.value));
+  form.HFREQ.value = TwoDecimal((1000*parseFloat(form.PIXEL_CLK.value))/(parseFloat(form.HTOTAL.value)));
+  form.VFREQ.value = TwoDecimal((1000000*parseFloat(form.PIXEL_CLK.value)) /(parseFloat(form.HTOTAL.value)*parseFloat(form.VTOTAL.value)));
+  form.FIELDRATE.value = form.VFREQ.value;
+  if (form.INTERLACE.value == "1") form.VFREQ.value=2*form.VFREQ.value;
+  form.HSYNCTIME.value=TwoDecimal((parseFloat(form.H_SYNC.value))/(parseFloat(form.PIXEL_CLK.value)));
+  form.VSYNCTIME.value=TwoDecimal((parseFloat(form.V_SYNC.value)*parseFloat(form.HTOTAL.value))/(parseFloat(form.PIXEL_CLK.value)));
+
+  form.MODELINE.value=MakeModeline(form);
+  form.WIN95INF.value=MakeWin95inf(form);
+  form.MATROXMON.value=MakeMatroxmon(form);
+
+}
+
+function set_mode_defaults(form) {
+  mode = form.SCREENMODE.options[form.SCREENMODE.selectedIndex].value;
+  form.INTERLACE.value="0";
+  form.VSYNCPOL.value="0";
+  form.HSYNCPOL.value="0";
+  if (mode == "CUSTOM") {
+     form.PIXEL_CLK.value="";
+     form.H_DISP.value="";
+     form.H_FPORCH.value="";
+     form.H_SYNC.value=""
+     form.H_BPORCH.value="";
+     form.V_DISP.value="";
+     form.V_FPORCH.value="";
+     form.V_SYNC.value=""
+     form.V_BPORCH.value="";
+  }
+  if (mode == "640x480_60") {
+     form.PIXEL_CLK.value="25.17";
+     form.H_DISP.value="640";
+     form.H_FPORCH.value="16";
+     form.H_SYNC.value="96"
+     form.H_BPORCH.value="48";
+     form.V_DISP.value="480";
+     form.V_FPORCH.value="11";
+     form.V_SYNC.value="2"
+     form.V_BPORCH.value="31";
+     form.HSYNCPOL.value="0";
+     form.VSYNCPOL.value="0";
+  }
+  if (mode == "640x480_72") {
+     form.PIXEL_CLK.value="31.5";
+     form.H_DISP.value="640";
+     form.H_FPORCH.value="24";
+     form.H_SYNC.value="40"
+     form.H_BPORCH.value="128";
+     form.V_DISP.value="480";
+     form.V_FPORCH.value="9";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="28";
+     form.HSYNCPOL.value="0";
+     form.VSYNCPOL.value="0";
+  }
+  if (mode == "640x480_75") {
+     form.PIXEL_CLK.value="31.5";
+     form.H_DISP.value="640";
+     form.H_FPORCH.value="16";
+     form.H_SYNC.value="96"
+     form.H_BPORCH.value="48";
+     form.V_DISP.value="480";
+     form.V_FPORCH.value="11";
+     form.V_SYNC.value="2"
+     form.V_BPORCH.value="32";
+     form.HSYNCPOL.value="0";
+     form.VSYNCPOL.value="0";
+  }
+  if (mode == "640x480_85") {
+     form.PIXEL_CLK.value="36";
+     form.H_DISP.value="640";
+     form.H_FPORCH.value="32";
+     form.H_SYNC.value="48"
+     form.H_BPORCH.value="112";
+     form.V_DISP.value="480";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="25";
+     form.HSYNCPOL.value="0";
+     form.VSYNCPOL.value="0";
+  }
+  if (mode == "800x600_56") {
+     form.PIXEL_CLK.value="38.1";
+     form.H_DISP.value="800";
+     form.H_FPORCH.value="32";
+     form.H_SYNC.value="128"
+     form.H_BPORCH.value="128";
+     form.V_DISP.value="600";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="4"
+     form.V_BPORCH.value="14";
+     form.HSYNCPOL.value="0";
+     form.VSYNCPOL.value="0";
+  }
+  if (mode == "800x600_60") {
+     form.PIXEL_CLK.value="40";
+     form.H_DISP.value="800";
+     form.H_FPORCH.value="40";
+     form.H_SYNC.value="128"
+     form.H_BPORCH.value="88";
+     form.V_DISP.value="600";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="4"
+     form.V_BPORCH.value="23";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "800x600_72") {
+     form.PIXEL_CLK.value="50";
+     form.H_DISP.value="800";
+     form.H_FPORCH.value="56";
+     form.H_SYNC.value="120"
+     form.H_BPORCH.value="64";
+     form.V_DISP.value="600";
+     form.V_FPORCH.value="37";
+     form.V_SYNC.value="6"
+     form.V_BPORCH.value="23";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "800x600_75") {
+     form.PIXEL_CLK.value="49.5";
+     form.H_DISP.value="800";
+     form.H_FPORCH.value="16";
+     form.H_SYNC.value="80"
+     form.H_BPORCH.value="160";
+     form.V_DISP.value="600";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="2"
+     form.V_BPORCH.value="21";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "800x600_85") {
+     form.PIXEL_CLK.value="56.25";
+     form.H_DISP.value="800";
+     form.H_FPORCH.value="32";
+     form.H_SYNC.value="64"
+     form.H_BPORCH.value="152";
+     form.V_DISP.value="600";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="27";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1024x768_60") {
+     form.PIXEL_CLK.value="65";
+     form.H_DISP.value="1024";
+     form.H_FPORCH.value="24";
+     form.H_SYNC.value="136"
+     form.H_BPORCH.value="160";
+     form.V_DISP.value="768";
+     form.V_FPORCH.value="3";
+     form.V_SYNC.value="6"
+     form.V_BPORCH.value="29";
+     form.HSYNCPOL.value="0";
+     form.VSYNCPOL.value="0";
+  }
+  if (mode == "1024x768_70") {
+     form.PIXEL_CLK.value="75";
+     form.H_DISP.value="1024";
+     form.H_FPORCH.value="24";
+     form.H_SYNC.value="136"
+     form.H_BPORCH.value="144";
+     form.V_DISP.value="768";
+     form.V_FPORCH.value="3";
+     form.V_SYNC.value="6"
+     form.V_BPORCH.value="29";
+     form.HSYNCPOL.value="0";
+     form.VSYNCPOL.value="0";
+  }
+  if (mode == "1024x768_75") {
+     form.PIXEL_CLK.value="78.75";
+     form.H_DISP.value="1024";
+     form.H_FPORCH.value="16";
+     form.H_SYNC.value="96"
+     form.H_BPORCH.value="176";
+     form.V_DISP.value="768";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="28";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1024x768_85") {
+     form.PIXEL_CLK.value="94.5";
+     form.H_DISP.value="1024";
+     form.H_FPORCH.value="48";
+     form.H_SYNC.value="96"
+     form.H_BPORCH.value="208";
+     form.V_DISP.value="768";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="36";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1152x864_75") {
+     form.PIXEL_CLK.value="108";
+     form.H_DISP.value="1152";
+     form.H_FPORCH.value="64";
+     form.H_SYNC.value="128"
+     form.H_BPORCH.value="256";
+     form.V_DISP.value="864";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="32";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1152x864_85") {
+     form.PIXEL_CLK.value="128.94";
+     form.H_DISP.value="1152";
+     form.H_FPORCH.value="64";
+     form.H_SYNC.value="224"
+     form.H_BPORCH.value="224";
+     form.V_DISP.value="864";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="43";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1152x882_70") {
+     form.PIXEL_CLK.value="94.5";
+     form.H_DISP.value="1152";
+     form.H_FPORCH.value="32";
+     form.H_SYNC.value="96"
+     form.H_BPORCH.value="200";
+     form.V_DISP.value="882";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="44";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1152x882_85") {
+     form.PIXEL_CLK.value="121.5";
+     form.H_DISP.value="1152";
+     form.H_FPORCH.value="64";
+     form.H_SYNC.value="128"
+     form.H_BPORCH.value="232";
+     form.V_DISP.value="882";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="39";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+
+  if (mode == "1280x1024_60") {
+     form.PIXEL_CLK.value="108";
+     form.H_DISP.value="1280";
+     form.H_FPORCH.value="48";
+     form.H_SYNC.value="112"
+     form.H_BPORCH.value="248";
+     form.V_DISP.value="1024";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="38";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1280x1024_75") {
+     form.PIXEL_CLK.value="135";
+     form.H_DISP.value="1280";
+     form.H_FPORCH.value="16";
+     form.H_SYNC.value="144"
+     form.H_BPORCH.value="248";
+     form.V_DISP.value="1024";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="38";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1280x1024_85") {
+     form.PIXEL_CLK.value="157.5";
+     form.H_DISP.value="1280";
+     form.H_FPORCH.value="48";
+     form.H_SYNC.value="160"
+     form.H_BPORCH.value="240";
+     form.V_DISP.value="1024";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="44";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1600x1200_60") {
+     form.PIXEL_CLK.value="162";
+     form.H_DISP.value="1600";
+     form.H_FPORCH.value="64";
+     form.H_SYNC.value="192"
+     form.H_BPORCH.value="304";
+     form.V_DISP.value="1200";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="46";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1600x1200_70") {
+     form.PIXEL_CLK.value="189";
+     form.H_DISP.value="1600";
+     form.H_FPORCH.value="64";
+     form.H_SYNC.value="192"
+     form.H_BPORCH.value="304";
+     form.V_DISP.value="1200";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="46";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1600x1200_75") {
+     form.PIXEL_CLK.value="202.5";
+     form.H_DISP.value="1600";
+     form.H_FPORCH.value="64";
+     form.H_SYNC.value="192"
+     form.H_BPORCH.value="304";
+     form.V_DISP.value="1200";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="46";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1600x1200_80") {
+     form.PIXEL_CLK.value="216";
+     form.H_DISP.value="1600";
+     form.H_FPORCH.value="64";
+     form.H_SYNC.value="192"
+     form.H_BPORCH.value="304";
+     form.V_DISP.value="1200";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="46";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "1600x1200_85") {
+     form.PIXEL_CLK.value="229.5";
+     form.H_DISP.value="1600";
+     form.H_FPORCH.value="64";
+     form.H_SYNC.value="192"
+     form.H_BPORCH.value="304";
+     form.V_DISP.value="1200";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="46";
+     form.HSYNCPOL.value="1";
+     form.VSYNCPOL.value="1";
+  }
+  if (mode == "640x480_VGA2TV50") {
+     form.PIXEL_CLK.value="25.175";
+     form.H_DISP.value="640";
+     form.H_FPORCH.value="16";
+     form.H_SYNC.value="64"
+     form.H_BPORCH.value="120";
+     form.V_DISP.value="480";
+     form.V_FPORCH.value="51";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="66";
+  }
+  if (mode == "640x480_VGA2TV60") {
+     form.PIXEL_CLK.value="25.175";
+     form.H_DISP.value="640";
+     form.H_FPORCH.value="16";
+     form.H_SYNC.value="64"
+     form.H_BPORCH.value="120";
+     form.V_DISP.value="480";
+     form.V_FPORCH.value="1";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="16";
+  }
+  if (mode == "800x600_VGA2TV50") {
+     form.PIXEL_CLK.value="34";
+     form.H_DISP.value="800";
+     form.H_FPORCH.value="40";
+     form.H_SYNC.value="120"
+     form.H_BPORCH.value="128";
+     form.V_DISP.value="600";
+     form.V_FPORCH.value="10";
+     form.V_SYNC.value="3"
+     form.V_BPORCH.value="12";
+  }
+  if (mode == "640x480_NTSC") {
+     form.PIXEL_CLK.value="12.700";
+     form.H_DISP.value="640";
+     form.H_FPORCH.value="16";
+     form.H_SYNC.value="88"
+     form.H_BPORCH.value="64";
+     form.V_DISP.value="480";
+     form.V_FPORCH.value="6";
+     form.V_SYNC.value="5"
+     form.V_BPORCH.value="13";
+     form.INTERLACE.value="1";
+  }
+  if (mode == "640x480_PAL") {
+     form.PIXEL_CLK.value="15.319";
+     form.H_DISP.value="640";
+     form.H_FPORCH.value="80";
+     form.H_SYNC.value="40"
+     form.H_BPORCH.value="160";
+     form.V_DISP.value="480";
+     form.V_FPORCH.value="35";
+     form.V_SYNC.value="5"
+     form.V_BPORCH.value="30";
+     form.INTERLACE.value="1";
+  }
+  if (mode == "800x600_PAL") {
+     form.PIXEL_CLK.value="15.407";
+     form.H_DISP.value="800";
+     form.H_FPORCH.value="8";
+     form.H_SYNC.value="128"
+     form.H_BPORCH.value="50";
+     form.V_DISP.value="600";
+     form.V_FPORCH.value="2";
+     form.V_SYNC.value="8"
+     form.V_BPORCH.value="4";
+     form.INTERLACE.value="1";
+  }
+  if (mode == "HDTV1920_60Hz") {
+     form.PIXEL_CLK.value="74.150";
+     form.H_DISP.value="1920";
+     form.H_FPORCH.value="44";
+     form.H_SYNC.value="88"
+     form.H_BPORCH.value="148";
+     form.V_DISP.value="517";
+     form.V_FPORCH.value="5";
+     form.V_SYNC.value="5"
+     form.V_BPORCH.value="35";
+     form.INTERLACE.value="1";
+  }
+  if (mode == "1920x1080_60") {
+     form.PIXEL_CLK.value="182.5";
+     form.H_DISP.value="1920";
+     form.H_FPORCH.value="32";
+     form.H_SYNC.value="696"
+     form.H_BPORCH.value="32";
+     form.V_DISP.value="1080";
+     form.V_FPORCH.value="22";
+     form.V_SYNC.value="11"
+     form.V_BPORCH.value="22";
+     form.INTERLACE.value="0";   
+  }
+}
+
+function moveleft(form) {
+  if (parseFloat(form.H_BPORCH.value)>=8) {
+    form.H_FPORCH.value=parseFloat(form.H_FPORCH.value)+8;
+    form.H_BPORCH.value=parseFloat(form.H_BPORCH.value)-8;
+  }
+}
+
+function moveright(form) {
+  if (parseFloat(form.H_FPORCH.value)>=8) {
+    form.H_FPORCH.value=parseFloat(form.H_FPORCH.value)-8;
+    form.H_BPORCH.value=parseFloat(form.H_BPORCH.value)+8;
+  }
+}
+
+function moveup(form) {
+  if (parseFloat(form.V_BPORCH.value)>=1) {
+    form.V_FPORCH.value=parseFloat(form.V_FPORCH.value)+1;
+    form.V_BPORCH.value=parseFloat(form.V_BPORCH.value)-1;
+  }
+}
+
+function movedown(form) {
+  if (parseFloat(form.V_FPORCH.value)>=1) {
+    form.V_FPORCH.value=parseFloat(form.V_FPORCH.value)-1;
+    form.V_BPORCH.value=parseFloat(form.V_BPORCH.value)+1;
+  }
+}
+
+// by wolfgang loeffler, email: wl@entropia.biz
+// modified by Tomi Engdahl
+function importModeline(form) {
+	var args = new Object();     
+	var argc = 0;
+	// Get Query String
+	var query = form.INMODELINE.value; 
+        var lcquery = query.toLowerCase();
+	// Split query at the blank
+	var pairs = query.split(" "); 
+	form.MATROXMON.value = "";
+	// Begin loop through the querystring
+	for(var i = 0; i < pairs.length; i++) {
+		if (pairs[i]!="") {
+			args[argc]=pairs[i];
+			argc++;
+//			form.MATROXMON.value = form.MATROXMON.value + "<"+args[argc-1]+">\n";
+		}
+	}
+	if (argc < 11) {
+		form.MATROXMON.value = form.MATROXMON.value + "wrong count of modeline params " + argc + " < 11 !\n";
+		exit();
+        }
+	
+	// handle args
+	// 1: <"640x480">
+	var resstr = args[1].substring(1, args[1].length-1);
+	var reso = resstr.split("x");
+//	form.MATROXMON.value = form.MATROXMON.value + "reso0=" + reso[0] + ", " + reso[1] + "\n";	
+	form.H_DISP.value=reso[0];
+	form.V_DISP.value=reso[1];
+	// 2:  dot clock
+	form.PIXEL_CLK.value=args[2];
+	// 3,7: xres/yres
+	if ((parseInt(reso[0])!=parseInt(args[3])) || (parseInt(reso[1])!=parseInt(args[7])) ) {
+		form.MATROXMON.value = form.MATROXMON.value + "resolution mismatch!\n";
+		exit();
+        }
+	// interlace
+	var interlacenom=1;
+	if (query.toLowerCase().search("interlace")>=0) { 
+		form.INTERLACE.value="1";
+		interlacenom=2;
+	}
+	
+	
+	// 4, 8: 
+	form.H_FPORCH.value=parseInt(args[4]) - parseInt(reso[0]);
+	form.V_FPORCH.value=(parseInt(args[8]) - parseInt(reso[1]))/interlacenom;
+	// 5, 9:
+	form.H_SYNC.value=parseInt(args[5]) - parseInt(args[4]);
+	form.V_SYNC.value=(parseInt(args[9]) - parseInt(args[8]))/interlacenom;
+	// 6, 10:
+	form.H_BPORCH.value=parseInt(args[6 ]) - parseInt(args[5]);
+	form.V_BPORCH.value=(parseInt(args[10]) - parseInt(args[9]))/interlacenom;
+	// rest
+	form.HSYNCPOL.value="0";
+	form.VSYNCPOL.value="0";
+	form.INTERLACE.value="0";
+	if (lcquery.indexOf("+hsync")>=0) form.HSYNCPOL.value="1";
+	if (lcquery.indexOf("+vsync")>=0) form.VSYNCPOL.value="1";
+	if (lcquery.indexOf("-hsync")>=0) form.HSYNCPOL.value="0";
+	if (lcquery.indexOf("-vsync")>=0) form.VSYNCPOL.value="0";
+	if (lcquery.indexOf("interlace")>=0) form.INTERLACE.value="1";
+}
+
+//End Hide -->
+</script>
+</head>
+<BODY BGCOLOR="#dfdfdf" TEXT="#000000">
+<P>
+<H1>Calculator for video timings v. 1.9</H1>
+<P>
+<I>Copyright Tomi Engdahl 1998-2006</I>
+<P>
+<B>NOTE1: You need a web broser that supports JavaScript to run this application. Most modern web browsers support JavaScript, but some users have this disable on their system for security reasons. 
+This software hould work with following or newer browsers: 
+Netscape 2.0, IE3 browser (with JavaScipt/Jscript turned to), Mozilla Firefox 1.0 and Opera. 
+This version has been tested to work with IE6 and Mozilla Firefox 1.0.
+</B>
+<P>
+<B>NOTE2: There is no guarantee that the results you get from this from are correct. Use this at your own risk. If you find errors in this page please <A HREF="mailto:tomi.engdahl@hut.fi">e-mail</A> me with a good description what is wrong.</B>
+<P>
+<HR>
+<H2>1. Select the setting where you start</H2>
+<P>
+There are two ways to select the settings. You can freely use either one of them. 
+For most applications selecting from the readily available screen modes is the best option.
+<P>
+<form action="">
+<P>
+Select the screen mode timings: 
+<SELECT NAME="SCREENMODE" onChange="set_mode_defaults(this.form)">
+<OPTION VALUE="CUSTOM" SELECTED>Custom screen mode                 
+<OPTION VALUE="640x480_60">VGA 640x480 60Hz
+<OPTION VALUE="640x480_72">VGA 640x480 72Hz     
+<OPTION VALUE="640x480_75">VESA 640x480 75Hz    
+<OPTION VALUE="640x480_85">VESA 640x480 85Hz
+<OPTION VALUE="800x600_56">SVGA 800x600 56Hz    
+<OPTION VALUE="800x600_60">VESA 800x600 60Hz   
+<OPTION VALUE="800x600_72">VESA 800x600 72Hz     
+<OPTION VALUE="800x600_75">VESA 800x600 75Hz     
+<OPTION VALUE="800x600_85">VESA 800x600 85Hz    
+<OPTION VALUE="1024x768_60">VESA 1024x768 60Hz    
+<OPTION VALUE="1024x768_70">VESA 1024x768 70Hz    
+<OPTION VALUE="1024x768_75">VESA 1024x768 75Hz    
+<OPTION VALUE="1024x768_85">VESA 1024x768 85Hz
+<OPTION VALUE="1152x864_75">VESA 1152x864 75 Hz
+<OPTION VALUE="1152x864_85">VESA 1152x864 85 Hz
+<OPTION VALUE="1152x882_70">VESA 1152x882 70Hz    
+<OPTION VALUE="1152x882_85">VESA 1152x882 85Hz    
+<OPTION VALUE="1280x1024_60">VESA 1280x1024 60Hz    
+<OPTION VALUE="1280x1024_75">VESA 1280x1024 75Hz    
+<OPTION VALUE="1280x1024_85">VESA 1280x1024 85Hz   
+<OPTION VALUE="1600x1200_60">VESA 1600x1200 60Hz  
+<OPTION VALUE="1600x1200_70">VESA 1600x1200 70Hz   
+<OPTION VALUE="1600x1200_75">VESA 1600x1200 75Hz   
+<OPTION VALUE="1600x1200_80">VESA 1600x1200 80Hz   
+<OPTION VALUE="1600x1200_85">VESA 1600x1200 85Hz
+<OPTION VALUE="1920x1080_60">Special 1920x1080 60 Hz
+<OPTION VALUE="640x480_VGA2TV50">VGA to TV converter 640x480 50 Hz (PAL)
+<OPTION VALUE="640x480_VGA2TV60">VGA to TV converter 640x480 60 Hz (NTSC)
+<OPTION VALUE="800x600_VGA2TV50">VGA to TV converter 800x600 50 Hz (PAL)
+<OPTION VALUE="640x480_NTSC">640x480 NTSC TV interlaced
+<OPTION VALUE="640x480_PAL">640x480 PAL TV interlaced
+<OPTION VALUE="800x600_PAL">800x600 PAL TV interlaced
+<OPTION VALUE="HDTV1920_60Hz">HDTV 1920x1034i 60 Hz
+</SELECT>
+</A>
+<INPUT TYPE = "button" VALUE = "Set mode parameters to form below" ONCLICK = "set_mode_defaults(this.form)">
+<P>
+Or give Xfree86 modeline to import: <BR>
+<INPUT TYPE="text" NAME="INMODELINE" SIZE=80> <BR>
+<INPUT TYPE = "button" VALUE = "Import Modeline" ONCLICK = "importModeline(this.form)">
+<P>
+<HR>
+<P>
+<H2>2. Look at graphics card settings and modify them</H2>
+<P>
+<TABLE border="1" cellspacing="1" width="100%">
+<TR>
+<TD>
+<H3>General parameters</H3>
+<P>
+Pixel clock frequency
+<INPUT TYPE = "text" NAME = "PIXEL_CLK" value="" SIZE=6> MHz
+<P>
+Interlace
+<INPUT TYPE = "text" NAME = "INTERLACE" value="0" SIZE=2>
+</TD>
+</TR>
+<TR><TD>
+<H3>Horizontal timing parameters</H3>
+Resolution 
+<INPUT TYPE = "text" NAME = "H_DISP" value="" SIZE=4> pixels
+<BR>
+Front porch
+<INPUT TYPE = "text" NAME = "H_FPORCH" value="" SIZE=4> pixels
+<BR>
+Sync pulse
+<INPUT TYPE = "text" NAME = "H_SYNC" value="" SIZE=4> pixels, polarity  
+<INPUT TYPE = "text" NAME = "HSYNCPOL" value="0" SIZE=2> *
+<BR>
+Back porch
+<INPUT TYPE = "text" NAME = "H_BPORCH" value="" SIZE=4> pixels
+<BR>
+<P>
+</TD>
+
+<TD>
+<H3>Vertical timing parameters</H3>
+<P>
+Resolution 
+<INPUT TYPE = "text" NAME = "V_DISP" value="" SIZE=4> lines
+<BR>
+Front porch
+<INPUT TYPE = "text" NAME = "V_FPORCH" value="" SIZE=4> lines
+<BR>
+Sync pulse
+<INPUT TYPE = "text" NAME = "V_SYNC" value="" SIZE=4> lines, polarity 
+<INPUT TYPE = "text" NAME = "VSYNCPOL" value=0" SIZE=1> *
+<BR>
+Back porch
+<INPUT TYPE = "text" NAME = "V_BPORCH" value="" SIZE=4> lines
+<BR>
+<P>
+</TD>
+</TR>
+</TABLE>
+* For sync polarities 0 = NEGATIVE SYNC and 1 = POSITIVE SYNC
+
+<P>
+Move picture: 
+<INPUT TYPE = "button" VALUE = "Left" ONCLICK = "moveleft(this.form)">
+<INPUT TYPE = "button" VALUE = "Right" ONCLICK = "moveright(this.form)">
+<INPUT TYPE = "button" VALUE = " Up " ONCLICK = "moveup(this.form)">
+<INPUT TYPE = "button" VALUE = "Down" ONCLICK = "movedown(this.form)">
+<P>
+<HR>
+<P>
+<H2>3. Start calculation</H2>
+<P>
+Press
+<INPUT TYPE = "button" VALUE = "Calculate" ONCLICK = "compute(this.form)">
+when you want to get the results.
+<P>
+<HR>
+<H2>4. View calculated results</H2>
+<P>
+<H3>Numerical results</H3>
+<P>
+Horizontal sync frequency is
+<INPUT TYPE="text" NAME="HFREQ" SIZE=6> kHz.
+<BR>
+Vertical sync frequency is 
+<INPUT TYPE="text" NAME="VFREQ" SIZE=6> Hz.
+<BR>
+Field rate is
+<INPUT TYPE="text" NAME="FIELDRATE" SIZE=6> Hz.
+<P>
+Horizontal sync pulse length is
+<INPUT TYPE="text" NAME="HSYNCTIME" SIZE=6> microseconds.
+<BR>
+Vertical sync pulse length is 
+<INPUT TYPE="text" NAME="VSYNCTIME" SIZE=6> microseconds.
+<P>
+Horizontal total is
+<INPUT TYPE="text" NAME="HTOTAL" SIZE=6> pixels
+and vertical total is 
+<INPUT TYPE="text" NAME="VTOTAL" SIZE=6> lines.
+<P>
+<B>If you want to test other values then fill in new values 
+to form on step 2 and press calculate again.</B>
+<P>
+<H3>Configuration files</H3>
+<P>
+NOTE: The following configuration files are calculated from the data
+above. There no guaantee that the calculated configuration files
+work on your system. Use the configuration files at your own risk.
+In some unfortunate cases it is possible that you damage your
+monitor or mess up your graphics card driver settings.
+<P>
+Xfree86 modeline (to be included to XConfig file): <BR>
+<INPUT TYPE="text" NAME="MODELINE" SIZE=80>
+<P>
+Matrox Windows driver custom monitor settings (to be included to MGA.MON file): <BR>
+<TEXTAREA NAME="MATROXMON" ROWS=15 COLS=60 WRAP=PHYSICAL></TEXTAREA><p>
+<P>
+Windows95 monitor.inf file modeline: <BR> 
+<INPUT TYPE="text" NAME="WIN95INF" SIZE=80>
+<BR>
+Note: Windows monitor .INF file contains only the screen refresh rate and
+sync polarity information. It does not contain screen position information.
+<P>
+</form>
+<P>
+<HR>
+<P>
+<H3>Some instructions and notes</H3>
+<P>
+This page lists the most commonly used resolutions and refresh rates that 
+you can modify. You can modify all the parameters you want.
+The you can use any combination of H and V resolution 
+(ok, number of pixels) and refresh rate that are
+supported by your operating system, graphics card and your monitor.
+Windows is pretty much limited on what resolutions it can use,
+but with X you can pratcially use almost any 
+any combination of H and V resolution
+(ok, number of pixels) and the limit is the card (clock and RAM) and
+the monitor capabilities.
+<P>
+Note 1: Actual vertical and horizontal refresh rated depend on 
+the screen resolution, video clock rate and some other numbers
+(porch and sync pulses).
+<P>
+Note 2: The horizontal timing parameters must be normally to be multiple
+of 8 because this is the resolution which stadard VGA cards operate in
+those timings and same applies to most of SVGA cards also.
+<P>
+Note 3: Screen mode settings do not set the sync signal polarity because the
+needed sync signal polarity depends on the monitor and screen mode used.
+If you do not know what polarity is needed try first to check both negative.
+Sync signal polarity settings do not affect the timing calculations.
+Sync signal polarities affect only to the generated configuration files.
+<P>
+Note 4: Moving picture the picture to the extreme positions may result
+unstable picture on the monitor.
+<P>
+Note 5: The screen mode settings are general settings usually targeted
+for 8 bpp (256 colors) modes. On some higher color modes some graphics
+cards seem to have some limitations what horizontal resolution
+settings can be (a multiple of 32 pixels in some cards). This might
+cause that all settings might not work with all card in all modes.
+Because of large variety of graphics cards and operating systems,
+not all combinations of things could have been tested. If something
+does not work for you, then try some other settings or try to 
+modify the mode to suit better to your card (if you know what to correct).
+<P>
+Note 6: In interlaced modes the vertical sync timing parameters are
+per interlaced field. 
+Interlace draws only half of the screen each refresh, doubling the effective refresh rate. Interlaced modes are well known for their high flicker, but a 60Hz interlaced mode looks much better than a 30Hz non-interlaced mode.
+<P>
+Note 7: Horizontal Sync Time typically varies form 3.5 to 4.0 microseconds in normal PC monitor applications. Vertical Sync Time usually varies from 50 to 300 microseconds. 
+<P>
+Note 8: I can't have all the screen modes in the world in my calculator (don't e-mail me to ask for details of modes not listed here, I don't have a secret repositiory of all the screen modes). To be able to fullfill the need 
+od people that need something else that not already offred here, 
+there is option to modify the screen mode settings 
+(the actual reason to built this calculator was to make modifying 
+screen modes easy). 
+Generally you take the nearest matching mode and then modify
+it to match your needs. For example if you need slightly higher
+or lower refresh rate that is offered by the ready made settings,
+just try to modify the pixel clock frequency accordingly to
+make the mode to refresh at the rate you want.
+If the resolution is not exacly right, you can make slight
+modifications to vertical and horizontal resolution fields.
+<P>
+Note 9: If you need a screen mode not listed here or are in doubt what is suitable for your monitor specifications, take a look at the screen mode calculator at
+<A HREF="http://xtiming.sourceforge.net/cgi-bin/xtiming.pl">http://xtiming.sourceforge.net/cgi-bin/xtiming.pl</A>. 
+It can generate Xfree68 modelines with different kind
+of user interface, you just need to input few details
+of your monitor and resolution you eant.
+Those modelines can be imported to this calculator, and
+modify them here if you feel a need to do so.
+<P>
+Note 10: If you have problems with this newest calculator version, try some older version: 
+<A HREF="calc_v16.html">v1.6</A> or <A HREF="calc_v15.html">v1.5</A>
+<P>
+Note 11: If you want to have on off-line calculator like this on you computer, just simply 
+save this web page to your computer. It will work nicely locally on your computer through 
+you web browser just like this on-line version. You do not need any Internet connection 
+to use this locally saved copy of this calculator. 
+<P>
+Note 12: The Xfree86 modeline importer in this calcualtor version is not foolproof and might not import all modelines correctly. 
+So check after modeline import that your data got imported correctly and do corrections to it if needed. According the comments I have received the modeline importer does not handle interlaced screen modes correctly. 
+<P>
+<HR>
+<ADDRESS><A HREF="http://www.hut.fi/~then/">Tomi Engdahl</A> &lt;<A HREF="mailto:tomi.engdahl@iki.fi">Tomi.Engdahl@iki.fi</A>&gt;</ADDRESS>
+<BR>
+<A HREF="index.html"><IMG SRC="back.gif" ALIGN=CENTER ALT="">Back to index</A>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-272685-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+</body>
+</HTML>
+
+
+
+
+
