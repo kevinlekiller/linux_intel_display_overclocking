@@ -230,3 +230,5 @@ Your monitor OSD might have the info also.
 ###Conclusion
 
 As noted at the start of the guide, if you do not have a Nvidia or Windows PC to test different refresh rates, this can be painful, as you will need to continuously try editing the edid file until you find something that works.
+
+Hopefully this guide has helped you in some way.
