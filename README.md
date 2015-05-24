@@ -183,7 +183,7 @@ Now you can regenerate your grub.cfg file:
 
 `$ sudo grub-mkconfig -o /boot/grub/grub.cfg`
 
-[grub_refresh](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/grub_refresh.png)
+![grub_refresh](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/grub_refresh.png)
 
 If you don't use grub, see [this page](https://wiki.archlinux.org/index.php/Kernel_parameters).
 
