@@ -96,6 +96,8 @@ We are looking for this: `Modeline "1920x1080_72.00_rb"  167.25  1920 1968 2000 
 
 Head to [this page](http://www.epanorama.net/faq/vga2rgb/calc.html)
 
+If that webpage is down, I've backed it up [here](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/video_timing_calculator_backup/Video%20timing%20calculator.html), download it and open it in your browser.
+
 Paste in the modeline above, in the box over the Import Modeline button.
 
 Click Import Modeline. Keep this web page open.
