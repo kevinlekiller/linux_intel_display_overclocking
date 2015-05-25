@@ -101,6 +101,8 @@ The -o argument will for example, convert 72hz to 71.928hz, so when you watch 23
 
 We are looking for this: `Modeline "1920x1080_72.00_rb"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync`
 
+Strip anything after `"1920x1080` in the quotes, so it looks like this: `Modeline "1920x1080"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync`
+
 #####Convert the modeline into timings.
 
 Head to [this page](http://www.epanorama.net/faq/vga2rgb/calc.html)
