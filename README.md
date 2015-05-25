@@ -12,8 +12,7 @@ As you may already know, you can not overclock your monitor with xrandr with an 
 
 This guide will try to help you overclock your monitor without xrandr directly.
 
-It helps if you know the monitor can be overclocked to the frequency you desire before starting (using an Nvidia card for example, or a Windows operating system, since the Intel drivers on windows allow monitor overclocking, I'm not sure if AMD supports overclocking monitors on linux).  
-Otherwise this might require considerable trial and error and be very frustrating.
+It helps if you know the monitor can be overclocked to the frequency you desire before starting (using an Nvidia card for example, or a Windows operating system, since the Intel drivers on windows allow monitor overclocking, I'm not sure if AMD supports overclocking monitors on linux). Otherwise this might require considerable trial and error and be very frustrating.
 
 ###Software required:
 
@@ -22,7 +21,7 @@ Otherwise this might require considerable trial and error and be very frustratin
 * [wine](https://www.winehq.org/) This will be used to install a Windows edid editor, since linux edid editors are uncommon.
 * [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine.  
 * [QT](https://www.qt.io/) This might not be required, I did see some warnings about missing certain QT5 images when running AW Edid Editor.
-* [gcc](https://gcc.gnu.org/) This is used to compile cvt from source. This is only required if you require reduced blanking.
+* [gcc](https://gcc.gnu.org/) This is used to compile cvt from source. This is only required if you require [reduced blanking](https://en.wikipedia.org/wiki/Coordinated_Video_Timings#Reduced_blanking).
 * [cvt](http://www.uruk.org/~erich/projects/cvt/) or [gtf](http://gtf.sourceforge.net/) See below for instructions/reasoning.
 
 ###Guide:
