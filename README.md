@@ -21,12 +21,12 @@ It helps if you know the monitor can be overclocked to the frequency you desire 
 * [wine](https://www.winehq.org/) This will be used to install a Windows edid editor, since linux edid editors are uncommon.
 * [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine.  
 * [QT](https://www.qt.io/) This might not be required, I did see some warnings about missing certain QT5 images when running AW Edid Editor.
-* [gcc](https://gcc.gnu.org/) This is used to compile cvt from source.
+* [gcc](https://gcc.gnu.org/) This is used to compile cvt12 from source.
 * [cvt12](https://github.com/kevinlekiller/cvt_modeline_calculator_12) See below for instructions.
 
 ###Guide:
 
-#####Compiling cvt.
+#####Compiling cvt12.
 
 Optional reading: [Article](https://en.wikipedia.org/wiki/Coordinated_Video_Timings#Reduced_blanking) on wikipedia about reduced blanking.
 
@@ -38,7 +38,7 @@ By using reduced blanking we can get a higher overclock when using HDMI 1.x, sin
 For example, without reduced blanking 72hz has about 210Mhz pixel clock. With reduced blanking, this drops to 160Mhz.
 
 Download and compile cvt12:    
-`$ cd ~/ && wget https://raw.githubusercontent.com/kevinlekiller/cvt_modeline_calculator_12/master/cvt12.c && gcc cvt12.c -O2 -o cvt -lm -Wall`
+`$ cd ~/ && wget https://raw.githubusercontent.com/kevinlekiller/cvt_modeline_calculator_12/master/cvt12.c && gcc cvt12.c -O2 -o cvt12 -lm -Wall`
 
 ![cvt12](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt12_compile.png)
 
@@ -84,22 +84,22 @@ You will see mostly unintelligible text, you might see the monitor's model numbe
 You can use this to confirm this is indeed the edid file for the monitor.  
 If not, we can confirm in one of the following steps.
 
-#####Get a new modeline using cvt or gtf.
+#####Get a new modeline using cvt12.
 
-Run the cvt we compiled or cvt from your distro or gtf to get a modeline string.
+The parameters are: screen\_width screen\_height refresh_rate.
 
-The parameters are: screen\_width screen\_height refresh_rate.  
+-b uses CVT v1.2 reduced blanking timings - remove this if you use a CRT monitor.  
+If your LCD is old, you might have to use -r instead, which uses CVT v1.1 reduced blanking timings.  
+If it is VERY old (10+ years), then do not use -r or -b, as most of those old LCD's do not support reduces blanking.
 
-If you compiled the above cvt, the -r is for reduced blanking:  
-`$ cd ~/ && ./cvt 1920 1080 72 -r`  
-If you use your distro's cvt, here you can use -r, only if you use a multiple of 60 for the refresh rate:  
-`$ cvt 1920 1080 72`
-If you use gtf:  
-`$ gtf 1920 1080 72`
+If you want to get a refresh rate that works well for watching movies or tv, pass the -o argument.  
+The -o argument will for example, convert 72hz to 71.928hz, so when you watch 23.976fps content it will play smoothly.
+
+`$ cd ~/ && ./cvt12 1920 1080 72 -b`  
 
 ![cvt_readout](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt_readout.png)
 
-We are looking for this: `Modeline "1920x1080_72.00_rb"  167.25  1920 1968 2000 2080  1080 1083 1088 1117  +HSync -Vsync`
+We are looking for this: `Modeline "1920x1080_72.00_rb"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync`
 
 #####Convert the modeline into timings.
 
