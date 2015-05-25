@@ -92,6 +92,8 @@ The parameters are: screen\_width screen\_height refresh_rate.
 If your LCD is old, you might have to use -r instead, which uses CVT v1.1 reduced blanking timings.  
 If it is VERY old (10+ years), then do not use -r or -b, as most of those old LCD's do not support reduces blanking.
 
+Be aware that **HDMI 1.x has a limit of 165Mhz pixel clock**, make sure you use displayport if you need to go over 165MHz, or try underclocking to 48hz if your goal is to watch movies / tv.
+
 If you want to get a refresh rate that works well for watching movies or tv, pass the -o argument.  
 The -o argument will for example, convert 72hz to 71.928hz, so when you watch 23.976fps content it will play smoothly.
 
