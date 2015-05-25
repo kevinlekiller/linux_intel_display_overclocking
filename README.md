@@ -243,7 +243,7 @@ Confirm your refresh rate using xrandr.
 
 `$ xrandr -q`
 
-For example, I see 71.92 is my refresh rate, which confirms it worked.
+For example, I see 71.92 is my refresh rate, which confirms it worked (I did not use the timings above, hence why you don't see 72hz).
 
 Your monitor OSD might have the info also.
 
