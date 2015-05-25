@@ -23,7 +23,7 @@ Otherwise this might require considerable trial and error and be very frustratin
 * [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) Or another decent edid editor, if you find one. This one installs fine in wine.
 * [QT](https://www.qt.io/) AW Edid Editor possibly requires QT5, it seems to work on QT4 with some warnings. It might work without QT, I can't say for sure.
 * [gcc](https://gcc.gnu.org/) For compiling cvt
-* [cvt](http://www.uruk.org/~erich/projects/cvt/cvt.c) See below for instructions/reasoning.
+* [cvt](http://www.uruk.org/~erich/projects/cvt/cvt.c) or [gft](http://gtf.sourceforge.net/) See below for instructions/reasoning.
 
 ###Guide:
 
@@ -40,6 +40,8 @@ I require reduced blanking to keep my pixel clock low, cvt without reduced blank
 Download and compile cvt:
 
 `$ cd ~/ && wget http://www.uruk.org/~erich/projects/cvt/cvt.c && gcc cvt.c -O2 -o cvt -lm -Wall`
+
+If that link does not work, I've back it up [here](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/backups/cvt.c), right-click copy link address.
 
 ![cvt](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt_compile.png)
 
@@ -82,11 +84,16 @@ You will see mostly unintelligible text, you might see the monitor's model numbe
 You can use this to confirm this is indeed the edid file for the monitor.  
 If not, we can confirm in one of the following steps.
 
-#####Get a new modeline using cvt.
+#####Get a new modeline using cvt or gtf.
 
 Run cvt with the screen width, screen height, refresh rate, -r if you need reduced blanking. You can alternatively use gtf if you know what you want/are doing.
 
-`$ cd ~/ && ./cvt 1920 1080 72 -r`
+If you compiled the above cvt:  
+`$ cd ~/ && ./cvt 1920 1080 72 -r`  
+If you use your distro's cvt (you can only use -r with a multiple of 60, so with 72 this is not possible):  
+`$ cvt 1920 1080 72`
+If you use gtf:  
+`$ gtf 1920 1080 72`
 
 ![cvt_readout](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt_readout.png)
 
@@ -96,7 +103,7 @@ We are looking for this: `Modeline "1920x1080_72.00_rb"  167.25  1920 1968 2000 
 
 Head to [this page](http://www.epanorama.net/faq/vga2rgb/calc.html)
 
-If that webpage is down, I've backed it up [here](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/video_timing_calculator_backup/Video%20timing%20calculator.html), download it and open it in your browser.
+If that webpage is down, I've backed it up [here](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/backups/Video%20timing%20calculator.html), download it (right-click save as) and open it in your browser.
 
 Paste in the modeline above, in the box over the Import Modeline button.
 
