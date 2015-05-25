@@ -17,35 +17,42 @@ Otherwise this might require considerable trial and error and be very frustratin
 
 ###Software required:
 
-* [xrandr](http://www.x.org/wiki/Projects/XRandR/)
-* [gnu coreutils](https://www.gnu.org/software/coreutils/coreutils.html)
-* [wine](https://www.winehq.org/) For an edid editor.
-* [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) Or another decent edid editor, if you find one. This one installs fine in wine.
-* [QT](https://www.qt.io/) AW Edid Editor possibly requires QT5, it seems to work on QT4 with some warnings. It might work without QT, I can't say for sure.
-* [gcc](https://gcc.gnu.org/) For compiling cvt
+* [xrandr](http://www.x.org/wiki/Projects/XRandR/) This should be already installed on GNU/Linux distros.
+* [gnu coreutils](https://www.gnu.org/software/coreutils/coreutils.html) This should be already installed on GNU/Linux distros.
+* [wine](https://www.winehq.org/) This will be used to install a Windows edid editor, since linux edid editors are uncommon.
+* [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine.
+* [QT](https://www.qt.io/) This might not be required, I did see some warnings about missing certain QT5 images when running AW Edid Editor.
+* [gcc](https://gcc.gnu.org/) This is used to compile cvt from source.
 * [cvt](http://www.uruk.org/~erich/projects/cvt/cvt.c) or [gft](http://gtf.sourceforge.net/) See below for instructions/reasoning.
 
 ###Guide:
 
 #####Compiling cvt.
 
-If you do not care about using reduced blanking, or you want to use gtf, then ignore this and use cvt or gtf that comes with your distro.
+If you do not care about using reduced blanking, or you want to use gtf, then ignore this and skip to the next step.
 
-cvt on my distro is compiled to only support multiples of 60hz for reduced blanking (which is fine according to cvt 1.1 spec, but going out of the spec works fine and I'm fine with it).
+You can read [here](https://en.wikipedia.org/wiki/Coordinated_Video_Timings#Reduced_blanking) about reduced blanking if you are curious.
 
-You can read [here](https://en.wikipedia.org/wiki/Coordinated_Video_Timings#Reduced_blanking) about reduced blanking.
+cvt on my Arch Linux, possibly other distros, is compiled to only support multiples of 60hz for reduced blanking, this is right according to CVT 1.1 specification.
 
-I require reduced blanking to keep my pixel clock low, cvt without reduced blanking and gtf at 1920x1080@72hz have pixel clocks of 200+mhz (since I use HDMI, I'm limited to 165mhz or so - although I can go up to 180 or so before my monitor refuses to turn on).
+My monitor only functions at a maximum pixel clock frequency of ~180mhz.
 
-Download and compile cvt:
+When using cvt or gft at 1920x1080@72hz, this results in a pixel clock frequency of ~220mhz.
 
-`$ cd ~/ && wget http://www.uruk.org/~erich/projects/cvt/cvt.c && gcc cvt.c -O2 -o cvt -lm -Wall`
+To get around this limitation on my monitor, I must ignore the CVT 1.1 specification and use reduced blanking at 72hz, I've used my monitor this way for 2 years without issue.
 
+To do this, we must use a version of cvt that does not have the check in place to make sure we are using a multiple of 60hz.
+
+Download it:  
+`$ cd ~/ && wget http://www.uruk.org/~erich/projects/cvt/cvt.c`  
 If that link does not work, I've backed it up [here](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/backups/cvt.c), right-click copy link address.
 
-![cvt](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt_compile.png)
+(Optional) You can edit cvt.c, changing the CLOCK\_STEP constant to something much lower (0.0000000001 for example) to improve the precision, otherwise you might get like 71.99hz instead of 72hz.
 
-(Optional) You can also edit cvt.c, changing the CLOCK\_STEP constant to something much lower (0.0000001 for example) to improve the precision, otherwise you might get like 71.99hz instead of 72hz. Recompile after changing CLOCK_STEP.
+Compile it:  
+`$ cd ~/ && gcc cvt.c -O2 -o cvt -lm -Wall`
+
+![cvt](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt_compile.png)
 
 #####Find your GPU.
 
@@ -61,6 +68,8 @@ We are interested in the following: `00:02.0`
 
 ![port](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/find_port.png)
 
+We are interested in: `HDMI1`
+
 #####Find the edid file using the above information:
 
 `$ sudo find /sys/devices/ -name edid`
@@ -69,6 +78,9 @@ We are interested in the following: `00:02.0`
 
 We are interested in:  
 `/sys/devices/pci0000:00/0000:00:02.0/drm/card0/card0-HDMI-A-1/edid`
+
+Note the `00:02.0` and `HDMI-A-1`, which correspond to the information we got in the above steps.  
+Remember the `HDMI-A-1`, which we will require later on.
 
 #####Copy the edid to your home folder:
 
@@ -86,11 +98,13 @@ If not, we can confirm in one of the following steps.
 
 #####Get a new modeline using cvt or gtf.
 
-Run cvt with the screen width, screen height, refresh rate, -r if you need reduced blanking. You can alternatively use gtf if you know what you want/are doing.
+Run the cvt we compiled or cvt from your distro or gtf to get a modeline string.
 
-If you compiled the above cvt:  
+The parameters are: screen\_width screen\_height refresh_rate.  
+
+If you compiled the above cvt, the -r is for reduced blanking:  
 `$ cd ~/ && ./cvt 1920 1080 72 -r`  
-If you use your distro's cvt (you can only use -r with a multiple of 60, so with 72 this is not possible):  
+If you use your distro's cvt, here you can use -r, only if you use a multiple of 60 for the refresh rate:  
 `$ cvt 1920 1080 72`
 If you use gtf:  
 `$ gtf 1920 1080 72`
@@ -105,19 +119,21 @@ Head to [this page](http://www.epanorama.net/faq/vga2rgb/calc.html)
 
 If that webpage is down, I've backed it up [here](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/backups/Video%20timing%20calculator.html), download it (right-click save as) and open it in your browser.
 
-Paste in the modeline above, in the box over the Import Modeline button.
+Paste in the modeline from the above step into the box over the `Import Modeline` button.
 
-Click Import Modeline. Keep this web page open.
+Click `Import Modeline`.
+
+Keep this web page open, we will need it in the next steps.
 
 ![video_timing_calculator](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/video_timing_calculator.png)
 
 #####Open the edid file in AW Edid Editor.
 
-You can start the program and open the file or start it from the shell:  
+You can start the program and open the file manually or start it from the shell with the file as a parameter:  
 
 `$ wine ~/.wine/drive_c/Program\ Files\ \(x86\)/ANALOG\ WAY/AW\ EDID\ Editor/AWEDIDEditor.exe ~/edid.bin`
 
-You might be able to confirm this is your monitors edid by using the information on the top left of the GUI in the Standard Data tab or in the Detailed Data tab, look for Display Product Name.
+You might be able to confirm this is the edid for your monitor by using the information on the top left of the GUI in the Standard Data tab or in the Detailed Data tab, look for Display Product Name.
 
 #####Change the "Standard Timings".
 
@@ -176,6 +192,10 @@ Copy the edid file to an appropriate folder:
 
 `$ sudo mkdir -p /usr/lib/firmware/edid/ && sudo cp ~/edid_custom.bin /usr/lib/firmware/edid/edid_custom.bin`
 
+Note: Change `HDMI-A-1` for what we found in an earlier step.
+
+If you don't use grub, see [this page](https://wiki.archlinux.org/index.php/Kernel_parameters), you need to add `drm_kms_helper.edid_firmware=HDMI-A-1:edid/edid_custom.bin` to your kernel parameter.
+
 With grub you can do it the following way (change nano to the editor of your choice):
 
 `$ sudo nano /etc/default/grub`
@@ -194,17 +214,16 @@ Now you can regenerate your grub.cfg file:
 
 ![grub_refresh](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/grub_refresh.png)
 
-If you don't use grub, see [this page](https://wiki.archlinux.org/index.php/Kernel_parameters).
-
 #####(Optional) Write the edid to the monitor.
 
-This is an optional, non recommended step.
+This step is not recommended. Most people reading this should skip to the next step.
 
-Some monitors allow writing edid information back into it.
+Some monitors allow writing edid information back into it.  
+The advantage to this is it will survive operating system re-installations, since the information will be inside the monitor.
 
-On most monitors that do support it, you need to enter "service mode", you will have to research this for your particular monitor.
+On most monitors that do support it, you need to enter "service mode", you will have to research this for your particular monitor. Some also require the monitor to be not displaying anything.
 
-Writing the edid file to the monitor can be dangerous, so I do not recommended it.
+Writing the edid file to the monitor can be dangerous, be forewarned.
 
 You can use the [edid-rw](https://github.com/bulletmark/edid-rw) tool.
 
@@ -214,15 +233,19 @@ First you should try finding which number the edid is in.
 
 `$ sudo ./edid-rw 0 | edid-decode`
 
-Increment 0 until you see the edid.
+Increment 0 until you see the edid data that corresponds to your monitor.
 
 Once you see it, you can write your custom edid file changing 0 for the number you found above.
 
 `$ sudo ./edid-rw -w 0 < ~/edid_custom.bin`
 
+You can verify it was written by reading it again:
+
+`$ sudo ./edid-rw 0 | edid-decode`
+
 #####Reboot and confirm refresh rate.
 
-Reboot the computer.
+Reboot the computer. You can do this in the GUI or in the shell like this:
 
 `$ sudo reboot`
 
