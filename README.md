@@ -202,7 +202,7 @@ With grub you can do it the following way (change nano to the editor of your cho
 
 Look for a line similar to this: `GRUB_CMDLINE_LINUX_DEFAULT="quiet splash"`
 
-Add the following to the end (change HDMI-A-1 based on what we found near the start of the guide): `drm_kms_helper.edid_firmware=HDMI-A-1:edid/edid_custom.bin`
+Add the following to the end: `drm_kms_helper.edid_firmware=HDMI-A-1:edid/edid_custom.bin`
 
 It should now look like this: `GRUB_CMDLINE_LINUX_DEFAULT="quiet splash drm_kms_helper.edid_firmware=HDMI-A-1:edid/edid_custom.bin"`
 
