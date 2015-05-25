@@ -41,7 +41,7 @@ Download and compile cvt:
 
 `$ cd ~/ && wget http://www.uruk.org/~erich/projects/cvt/cvt.c && gcc cvt.c -O2 -o cvt -lm -Wall`
 
-If that link does not work, I've back it up [here](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/backups/cvt.c), right-click copy link address.
+If that link does not work, I've backed it up [here](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/backups/cvt.c), right-click copy link address.
 
 ![cvt](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt_compile.png)
 
