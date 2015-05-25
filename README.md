@@ -21,37 +21,26 @@ It helps if you know the monitor can be overclocked to the frequency you desire 
 * [wine](https://www.winehq.org/) This will be used to install a Windows edid editor, since linux edid editors are uncommon.
 * [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine.  
 * [QT](https://www.qt.io/) This might not be required, I did see some warnings about missing certain QT5 images when running AW Edid Editor.
-* [gcc](https://gcc.gnu.org/) This is used to compile cvt from source. This is only required if you require [reduced blanking](https://en.wikipedia.org/wiki/Coordinated_Video_Timings#Reduced_blanking).
-* [cvt](http://www.uruk.org/~erich/projects/cvt/) or [gtf](http://gtf.sourceforge.net/) See below for instructions/reasoning.
+* [gcc](https://gcc.gnu.org/) This is used to compile cvt from source.
+* [cvt12](https://github.com/kevinlekiller/cvt_modeline_calculator_12) See below for instructions.
 
 ###Guide:
 
 #####Compiling cvt.
 
-If you do not care about using reduced blanking, or you want to use gtf, then ignore this and skip to the next step.
+Optional reading: [Article](https://en.wikipedia.org/wiki/Coordinated_Video_Timings#Reduced_blanking) on wikipedia about reduced blanking.
 
-You can read [here](https://en.wikipedia.org/wiki/Coordinated_Video_Timings#Reduced_blanking) about reduced blanking if you are curious.
+We will compile a modified version of cvt to get access to CVT v1.2 reduced blanking timings. Most distributions use cvt from x.org which only supports CVT 1.1 currently, CVT 1.1 does not allow reduced blanking on any refresh rates other than multiples of 60hz.
 
-cvt on my Arch Linux, possibly other distros, is compiled to only support multiples of 60hz for reduced blanking, this is right according to CVT 1.1 specification.
+Reduced blanking is for LCD monitors. If you use a CRT monitor, do not use reduced blanking.  
+By using reduced blanking we can get a higher overclock when using HDMI 1.x, since HDMI 1.x has a pixel clock limit of about 165Mhz.
 
-My monitor only functions at a maximum pixel clock frequency of ~180mhz.
+For example, without reduced blanking 72hz has about 210Mhz pixel clock. With reduced blanking, this drops to 160Mhz.
 
-When using cvt or gtf at 1920x1080@72hz, this results in a pixel clock frequency of ~220mhz.
+Download and compile cvt12:    
+`$ cd ~/ && wget https://raw.githubusercontent.com/kevinlekiller/cvt_modeline_calculator_12/master/cvt12.c && gcc cvt12.c -O2 -o cvt -lm -Wall`
 
-To get around this limitation on my monitor, I must ignore the CVT 1.1 specification and use reduced blanking at 72hz, I've used my monitor this way for 2 years without issue.
-
-To do this, we must use a version of cvt that does not have the check in place to make sure we are using a multiple of 60hz.
-
-Download it:  
-`$ cd ~/ && wget http://www.uruk.org/~erich/projects/cvt/cvt.c`  
-If that link does not work, I've backed it up [here](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/backups/cvt.c), right-click copy link address.
-
-(Optional) You can edit cvt.c, changing the CLOCK\_STEP constant to something much lower (0.0000000001 for example) to improve the precision, otherwise you might get like 71.99hz instead of 72hz, again this is against the CVT 1.1 specifications, but I've had no issues.
-
-Compile it:  
-`$ cd ~/ && gcc cvt.c -O2 -o cvt -lm -Wall`
-
-![cvt](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt_compile.png)
+![cvt12](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt12_compile.png)
 
 #####Find your GPU.
 
