@@ -20,7 +20,7 @@ Otherwise this might require considerable trial and error and be very frustratin
 * [xrandr](http://www.x.org/wiki/Projects/XRandR/) This should be already installed on GNU/Linux distros.
 * [gnu coreutils](https://www.gnu.org/software/coreutils/coreutils.html) This should be already installed on GNU/Linux distros.
 * [wine](https://www.winehq.org/) This will be used to install a Windows edid editor, since linux edid editors are uncommon.
-* [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine. If the link does not work, you can try [here](https://archive.org/details/aw_edideditor_setup_01_01_07_windows).
+* [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine.  
 * [QT](https://www.qt.io/) This might not be required, I did see some warnings about missing certain QT5 images when running AW Edid Editor.
 * [gcc](https://gcc.gnu.org/) This is used to compile cvt from source. This is only required if you require reduced blanking.
 * [cvt](http://www.uruk.org/~erich/projects/cvt/) or [gtf](http://gtf.sourceforge.net/) See below for instructions/reasoning.
