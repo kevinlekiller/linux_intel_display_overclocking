@@ -23,7 +23,7 @@ Otherwise this might require considerable trial and error and be very frustratin
 * [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine.
 * [QT](https://www.qt.io/) This might not be required, I did see some warnings about missing certain QT5 images when running AW Edid Editor.
 * [gcc](https://gcc.gnu.org/) This is used to compile cvt from source. This is only required if you require reduced blanking.
-* [cvt](http://www.uruk.org/~erich/projects/cvt/) or [gft](http://gtf.sourceforge.net/) See below for instructions/reasoning.
+* [cvt](http://www.uruk.org/~erich/projects/cvt/) or [gtf](http://gtf.sourceforge.net/) See below for instructions/reasoning.
 
 ###Guide:
 
@@ -37,7 +37,7 @@ cvt on my Arch Linux, possibly other distros, is compiled to only support multip
 
 My monitor only functions at a maximum pixel clock frequency of ~180mhz.
 
-When using cvt or gft at 1920x1080@72hz, this results in a pixel clock frequency of ~220mhz.
+When using cvt or gtf at 1920x1080@72hz, this results in a pixel clock frequency of ~220mhz.
 
 To get around this limitation on my monitor, I must ignore the CVT 1.1 specification and use reduced blanking at 72hz, I've used my monitor this way for 2 years without issue.
 
