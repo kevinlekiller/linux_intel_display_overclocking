@@ -47,7 +47,7 @@ Download it:
 `$ cd ~/ && wget http://www.uruk.org/~erich/projects/cvt/cvt.c`  
 If that link does not work, I've backed it up [here](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/backups/cvt.c), right-click copy link address.
 
-(Optional) You can edit cvt.c, changing the CLOCK\_STEP constant to something much lower (0.0000000001 for example) to improve the precision, otherwise you might get like 71.99hz instead of 72hz.
+(Optional) You can edit cvt.c, changing the CLOCK\_STEP constant to something much lower (0.0000000001 for example) to improve the precision, otherwise you might get like 71.99hz instead of 72hz, again this is against the CVT 1.1 specifications, but I've had no issues.
 
 Compile it:  
 `$ cd ~/ && gcc cvt.c -O2 -o cvt -lm -Wall`
