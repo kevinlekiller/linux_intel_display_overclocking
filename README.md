@@ -180,7 +180,7 @@ On the right, under the "Detailed Timing Blocks" section, click on the "n#" tab 
 
 Change all these settings with the information in the previous step.
 
-**MAKE SURE YOU FILE->SAVE_AS AND NOT FILE->SAVE**, doing file->save, the AW edid editor does not seem to overwrite the file. Save it as edid_custom.bin then exit the program.
+Save the file _**by doing File->Save As, NOT FILE->SAVE, File->Save does function correctly in wine**_. Call the new file edid_custom.bin and exit AW Edid Editor.
 
 ![detailed_timings](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/detailed_timings.png)
 
