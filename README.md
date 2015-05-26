@@ -70,7 +70,7 @@ If not, we can confirm in one of the following steps.
 
 ####Compiling cvt12.
 
-We will compile a modified version of cvt to get access to CVT v1.2 reduced blanking timings. Most distributions use cvt from x.org which only supports CVT 1.1 currently, CVT 1.1 does not allow reduced blanking on any refresh rates other than multiples of 60hz.
+We will compile a modified version of cvt to get access to CVT v1.2 reduced blanking timings. Most distributions use cvt from x.org which only supports CVT 1.1 currently, CVT 1.1 does not allow reduced blanking on any refresh rates other than multiples of 60Hz.
 
 Download and compile cvt12:    
 `$ cd ~/ && wget https://raw.githubusercontent.com/kevinlekiller/cvt_modeline_calculator_12/master/cvt12.c && gcc cvt12.c -O2 -o cvt12 -lm -Wall`
@@ -93,7 +93,7 @@ Note that the monitor, the GPU and the cable all need to support the minimum ver
 
 By using reduced blanking we can get a higher overclock.
 
-For example, without reduced blanking 71Hz is 207.25Mhz pixel clock. With reduced blanking, this drops to 164.96MHz. Unfortunately we can't get to 72Hz without manually tuning the modeline if we are limited to 165MHz.
+For example, without reduced blanking 71Hz is 207.25MHz pixel clock. With reduced blanking, this drops to 164.96MHz. Unfortunately we can't get to 72Hz without manually tuning the modeline if we are limited to 165MHz.
 
 ####Get a new modeline using cvt12.
 
@@ -249,7 +249,7 @@ Run the following command:
 
 `$ xrandr -q`
 
-For example, I see 71.92 is my refresh rate, which confirms it worked (I did not use the timings above, hence why you don't see 72hz).
+For example, I see 71.92Hz is my refresh rate, which confirms it worked (I did not use the timings above, hence why you don't see 72Hz).
 
 Your monitor OSD might have the info also.
 
