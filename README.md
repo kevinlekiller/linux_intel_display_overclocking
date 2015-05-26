@@ -127,21 +127,11 @@ You can start the program and open the file manually or start it from the shell 
 
 You might be able to confirm this is the edid for your monitor by using the information on the top left of the GUI in the Standard Data tab or in the Detailed Data tab, look for Display Product Name.
 
-#####Change the "Standard Timings".
+#####Change the "Detailed Timings".
 
-In the Standard Data tab, change the Standard Timings (on the right) Refresh Rate to the desired refresh rate for the screen resolution you want.
+Head to the "CEA Extension" tab.
 
-For example, here I set 1920x1080 to 72hz.
-
-![standard_timings](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/standard_timings.png)
-
-#####Change the "Prefered Timings".
-
-Head to the Detailed Data tab.
-
-If you see the "Preferred Timing Block" and it is the resolution you are using (1920x1080 for example), continue this step, otherwise, skip to the next step.
-
-Using the information we got on the Video timing calculator website, we can input this data.
+On the right, under the "Detailed Timing Blocks" section, click on the "n#" tab until you find your wanted resolution, alternatively, use a resolution you never will use and edit it.
 
 To use the data on the website in the edid editor program I've written the following: (left is program, right is website)
 
@@ -162,19 +152,25 @@ V. Border        -> You shouldn't change this, this changes where the pixels sta
 V.Sync Polarity  -> If Sync pulse _ lines, polarity _ * is 1 , put a checkmark, otherwise remove the checkmark.  
 H.Sync Polarity  -> If Sync pulse _ pixels, polarity _ * is 1 , put a checkmark, otherwise remove the checkmark.
 
-![prefered_timings](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/preferred_timings.png)
-
-#####Change the "Detailed Timings".
-
-Head to the "CEA Extension" tab.
-
-On the right, under the "Detailed Timing Blocks" section, click on the "n#" tab until you find your wanted resolution.
-
 Change all these settings with the information in the previous step.
 
-Save the file _**by doing File->Save As, NOT FILE->SAVE, File->Save does not function correctly in wine**_. Call the new file edid_custom.bin and exit AW Edid Editor.
-
 ![detailed_timings](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/detailed_timings.png)
+
+#####(Optional)Change the "Prefered Timings".
+
+Head to the Detailed Data tab.
+
+If you see the "Preferred Timing Block" and it is the resolution you are using (1920x1080 for example), continue this step, otherwise, skip to the next step.
+
+If you change this, this will set the the default timings/resolution for the monitor.
+
+Use the settings we used in the last step.
+
+![prefered_timings](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/preferred_timings.png)
+
+#####Saves changes.
+
+Save the file _**by doing File->Save As, NOT FILE->SAVE, File->Save does not function correctly in wine**_. Call the new file edid_custom.bin and exit AW Edid Editor.
 
 #####Make linux use the modified edid file on boot.
 
