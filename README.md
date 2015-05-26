@@ -22,25 +22,9 @@ It helps if you know the monitor can be overclocked to the frequency you desire 
 * [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine.  
 * [QT](https://www.qt.io/) This might not be required, I did see some warnings about missing certain QT5 images when running AW Edid Editor.
 * [gcc](https://gcc.gnu.org/) This is used to compile cvt12 from source.
-* [cvt12](https://github.com/kevinlekiller/cvt_modeline_calculator_12) See below for instructions.
+* [cvt12](https://github.com/kevinlekiller/cvt_modeline_calculator_12) Instructions on downloading/compiling will be shown later in the guide.
 
 ###Guide:
-
-#####Compiling cvt12.
-
-Optional reading: [Article](https://en.wikipedia.org/wiki/Coordinated_Video_Timings#Reduced_blanking) on wikipedia about reduced blanking.
-
-We will compile a modified version of cvt to get access to CVT v1.2 reduced blanking timings. Most distributions use cvt from x.org which only supports CVT 1.1 currently, CVT 1.1 does not allow reduced blanking on any refresh rates other than multiples of 60hz.
-
-Reduced blanking is for LCD monitors. If you use a CRT monitor, do not use reduced blanking.  
-By using reduced blanking we can get a higher overclock when using HDMI 1.x, since HDMI 1.x has a pixel clock limit of about 165Mhz.
-
-For example, without reduced blanking 72hz has about 210Mhz pixel clock. With reduced blanking, this drops to 160Mhz.
-
-Download and compile cvt12:    
-`$ cd ~/ && wget https://raw.githubusercontent.com/kevinlekiller/cvt_modeline_calculator_12/master/cvt12.c && gcc cvt12.c -O2 -o cvt12 -lm -Wall`
-
-![cvt12](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt12_compile.png)
 
 #####Find your GPU.
 
@@ -84,6 +68,34 @@ You will see mostly unintelligible text, you might see the monitor's model numbe
 You can use this to confirm this is indeed the edid file for the monitor.  
 If not, we can confirm in one of the following steps.
 
+#####Compiling cvt12.
+
+We will compile a modified version of cvt to get access to CVT v1.2 reduced blanking timings. Most distributions use cvt from x.org which only supports CVT 1.1 currently, CVT 1.1 does not allow reduced blanking on any refresh rates other than multiples of 60hz.
+
+Download and compile cvt12:    
+`$ cd ~/ && wget https://raw.githubusercontent.com/kevinlekiller/cvt_modeline_calculator_12/master/cvt12.c && gcc cvt12.c -O2 -o cvt12 -lm -Wall`
+
+![cvt12](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt12_compile.png)
+
+#####Notes on reduced blanking and pixel clock limits.
+
+Optional reading: [Article](https://en.wikipedia.org/wiki/Coordinated_Video_Timings#Reduced_blanking) on wikipedia about reduced blanking.
+
+Overclocking the monitor will raise the pixel clock frequency.
+
+Pixel clock frequency limits:  
+HDMI 1.0 to 1.2 and DVI have a limit of 165MHz pixel clock frequency.  
+HDMI 1.0, 1.1, 1.2 & DVI = 165MHz  
+HDMI 1.3, 1.4            = 340MHz  
+HDMI 2.0                 = 600MHz  
+DisplayPort              = 500MHz?
+
+Note that the monitor, the GPU and the cable all need to support the minimum version to gain access to a higher pixel clock frequency limit (a HDMI 1.2 monitor with a 1.3 GPU is still limited to 165MHz). If you're unsure, using a DisplayPort cable is recommended.
+
+By using reduced blanking we can get a higher overclock.
+
+For example, without reduced blanking 71Hz is 207.25Mhz pixel clock. With reduced blanking, this drops to 164.96MHz. Unfortunately we can't get to 72Hz without manually tuning the modeline if we are limited to 165MHz.
+
 #####Get a new modeline using cvt12.
 
 The parameters are: screen\_width screen\_height refresh_rate.
@@ -92,10 +104,8 @@ The parameters are: screen\_width screen\_height refresh_rate.
 If your LCD is old, you might have to use -r instead, which uses CVT v1.1 reduced blanking timings.  
 If it is VERY old (10+ years), then do not use -r or -b, as most of those old LCD's do not support reduces blanking.
 
-Be aware that **HDMI 1.x has a limit of 165Mhz pixel clock**, make sure you use displayport if you need to go over 165MHz, or try underclocking to 48hz if your goal is to watch movies / tv.
-
 If you want to get a refresh rate that works well for watching movies or tv, pass the -o argument.  
-The -o argument will for example, convert 72hz to 71.928hz, so when you watch 23.976fps content it will play smoothly.
+The -o argument will for example, convert 72Hz to 71.928Hz, so when you watch 23.976fps content it will play smoothly.
 
 `$ cd ~/ && ./cvt12 1920 1080 72 -b`  
 
@@ -118,6 +128,20 @@ Click `Import Modeline`.
 Keep this web page open, we will need it in the next steps.
 
 ![video_timing_calculator](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/video_timing_calculator.png)
+
+#####(Optional) Tuning the modeline 
+
+This step is not recommended unless you are desperate to get the overclock you want but are limited by pixel clock frequency. Skip this step if you are not.
+
+If you are limited to a 165MHz pixel clock for example, you can change the modeline manually to try to get under the limit.
+
+For example, let's say this is the modeline we want, which is 71.93Hz: `Modeline "1920x1080"  167.11  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync`
+
+This has a pixel clock of 167.11MHz. Open a new tab in your browser and open  [this](http://www.epanorama.net/faq/vga2rgb/calc.html) site again. Put in the modeline you want.
+
+Change 167.11MHz to 164.50MHz or so, and play around with the porch and sync values then click calculate on step 3 on that web page, until you get 71.93Hz again.
+
+For example after some messing around I got this: `Modeline "1920x1080"   164.50   1920 1962 2001 2079   1080 1088 1094 1100  +hsync -vsync`
 
 #####Open the edid file in AW Edid Editor.
 
@@ -156,13 +180,13 @@ Change all these settings with the information in the previous step.
 
 ![detailed_timings](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/detailed_timings.png)
 
-#####(Optional)Change the "Prefered Timings".
+#####(Optional) Change the "Prefered Timings".
 
 Head to the Detailed Data tab.
 
 If you see the "Preferred Timing Block" and it is the resolution you are using (1920x1080 for example), continue this step, otherwise, skip to the next step.
 
-If you change this, this will set the the default timings/resolution for the monitor.
+If you change this, this will set the the default timings/resolution for the monitor (which is not very useful, unless your distro is unable to remember the last refresh rate you used when rebooting).
 
 Use the settings we used in the last step.
 
