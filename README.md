@@ -7,11 +7,15 @@ Use this information at your own risk. I do not claim responsability for any dam
 --------
 ##Intro
 
-As you may already know, you can not overclock your monitor with xrandr with an Intel GPU (at least on Haswell or Broadwell GPU's I've tried).
+As you may already know, you can not overclock your monitor with xorg.conf/xrandr with an Intel GPU on Linux (at least on Haswell or Broadwell GPU's I've tried).
 
-This guide will try to help you overclock your monitor without xrandr directly.
+This guide will help you overclock your monitor by editing the edid.
 
-It helps if you know the monitor can be overclocked to the frequency you desire before starting (using an Nvidia card for example, or a Windows operating system, since the Intel drivers on windows allow monitor overclocking, I'm not sure if AMD supports overclocking monitors on linux). Otherwise this might require considerable trial and error and be very frustrating.
+It helps if you know the monitor can be overclocked to the refresh rate/timings you desire before starting.  
+If you have access to an Nvidia GPU, those can overclock using xorg.conf, by disabling some verifications.  
+I'm not sure if AMD GPU's can overclock on Linux, it might be possible.  
+If you have access to a Windows operating system, Intel / AMD / Nvidia GPU's can overclock monitors using their driver utilities.  
+It helps knowing this information because it can be tedious to do the trial and error to find the timings with an Intel GPU on Linux.
 
 --------
 ##Software required:
