@@ -2,11 +2,12 @@
 Guide for overclocking monitors on Linux with Intel GPUs.
 --------
 
-###Disclaimer
+##Disclaimer
 
 Use this information at your own risk. I do not claim responsability for any damage you might cause to your equipment, yourself or others.
 
-###Intro
+--------
+##Intro
 
 As you may already know, you can not overclock your monitor with xrandr with an Intel GPU (at least on Haswell or Broadwell GPU's I've tried).
 
@@ -14,7 +15,8 @@ This guide will try to help you overclock your monitor without xrandr directly.
 
 It helps if you know the monitor can be overclocked to the frequency you desire before starting (using an Nvidia card for example, or a Windows operating system, since the Intel drivers on windows allow monitor overclocking, I'm not sure if AMD supports overclocking monitors on linux). Otherwise this might require considerable trial and error and be very frustrating.
 
-###Software required:
+--------
+##Software required:
 
 * [xrandr](http://www.x.org/wiki/Projects/XRandR/) This should be already installed on GNU/Linux distros.
 * [gnu coreutils](https://www.gnu.org/software/coreutils/coreutils.html) This should be already installed on GNU/Linux distros.
@@ -23,9 +25,10 @@ It helps if you know the monitor can be overclocked to the frequency you desire 
 * [gcc](https://gcc.gnu.org/) This is used to compile cvt12 from source.
 * [cvt12](https://github.com/kevinlekiller/cvt_modeline_calculator_12) Instructions on downloading/compiling will be shown later in the guide.
 
-###Guide:
+--------
+##Guide:
 
-#####Find your GPU.
+####Find your GPU.
 
 `$ lspci | grep -Pi 'intel.*graphics'`
 
@@ -33,7 +36,7 @@ It helps if you know the monitor can be overclocked to the frequency you desire 
 
 We are interested in the following: `00:02.0`
 
-#####Find the port the monitor is connected to:
+####Find the port the monitor is connected to:
 
 `$ xrandr | grep -Pio '.*?\sconnected'`
 
@@ -41,7 +44,7 @@ We are interested in the following: `00:02.0`
 
 We are interested in: `HDMI1`
 
-#####Find the edid file using the above information:
+####Find the edid file using the above information:
 
 `$ sudo find /sys/devices/ -name edid`
 
@@ -53,11 +56,11 @@ We are interested in:
 Note the `00:02.0` and `HDMI-A-1`, which correspond to the information we got in the above steps.  
 Remember the `HDMI-A-1`, which we will require later on.
 
-#####Copy the edid to your home folder:
+####Copy the edid to your home folder:
 
 `$ sudo cp /sys/devices/pci0000:00/0000:00:02.0/drm/card0/card0-HDMI-A-1/edid ~/edid.bin`
 
-#####Print the edid:
+####Print the edid:
 
 `$ cat ~/edid.bin && echo ""`
 
@@ -67,7 +70,7 @@ You will see mostly unintelligible text, you might see the monitor's model numbe
 You can use this to confirm this is indeed the edid file for the monitor.  
 If not, we can confirm in one of the following steps.
 
-#####Compiling cvt12.
+####Compiling cvt12.
 
 We will compile a modified version of cvt to get access to CVT v1.2 reduced blanking timings. Most distributions use cvt from x.org which only supports CVT 1.1 currently, CVT 1.1 does not allow reduced blanking on any refresh rates other than multiples of 60hz.
 
@@ -76,7 +79,7 @@ Download and compile cvt12:
 
 ![cvt12](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt12_compile.png)
 
-#####Notes on reduced blanking and pixel clock limits.
+####Notes on reduced blanking and pixel clock limits.
 
 Optional reading: [Article](https://en.wikipedia.org/wiki/Coordinated_Video_Timings#Reduced_blanking) on wikipedia about reduced blanking.
 
@@ -94,7 +97,7 @@ By using reduced blanking we can get a higher overclock.
 
 For example, without reduced blanking 71Hz is 207.25Mhz pixel clock. With reduced blanking, this drops to 164.96MHz. Unfortunately we can't get to 72Hz without manually tuning the modeline if we are limited to 165MHz.
 
-#####Get a new modeline using cvt12.
+####Get a new modeline using cvt12.
 
 The parameters are: screen\_width screen\_height refresh_rate.
 
@@ -113,7 +116,7 @@ We are looking for this: `Modeline "1920x1080_72.00_rb"  167.28  1920 1968 2000 
 
 Strip anything after `"1920x1080` in the quotes, so it looks like this: `Modeline "1920x1080"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync`
 
-#####Convert the modeline into timings.
+####Convert the modeline into timings.
 
 Head to [this page](http://www.epanorama.net/faq/vga2rgb/calc.html)
 
@@ -127,7 +130,7 @@ Keep this web page open, we will need it in the next steps.
 
 ![video_timing_calculator](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/video_timing_calculator.png)
 
-#####(Optional) Tuning the modeline 
+####(Optional) Tuning the modeline 
 
 This step is not recommended unless you are desperate to get the overclock you want but limited by pixel clock frequency. Skip this step if you are not.
 
@@ -141,7 +144,7 @@ Change 167.11MHz to 164.50MHz or so, and play around with the porch and sync val
 
 For example after some messing around I got this: `Modeline "1920x1080"   164.50   1920 1962 2001 2079   1080 1088 1094 1100  +hsync -vsync`
 
-#####Open the edid file in AW Edid Editor.
+####Open the edid file in AW Edid Editor.
 
 You can start the program and open the file manually or start it from the shell with the file as a parameter:  
 
@@ -149,7 +152,7 @@ You can start the program and open the file manually or start it from the shell 
 
 You might be able to confirm this is the edid for your monitor by using the information on the top left of the GUI in the Standard Data tab or in the Detailed Data tab, look for Display Product Name.
 
-#####Change the "Detailed Timings".
+####Change the "Detailed Timings".
 
 Head to the "CEA Extension" tab.
 
@@ -178,7 +181,7 @@ Change all these settings with the information in the previous step.
 
 ![detailed_timings](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/detailed_timings.png)
 
-#####(Optional) Change the "Prefered Timings".
+####(Optional) Change the "Prefered Timings".
 
 Head to the Detailed Data tab.
 
@@ -190,11 +193,11 @@ Use the settings we used in the last step.
 
 ![prefered_timings](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/preferred_timings.png)
 
-#####Saves changes.
+####Saves changes.
 
 Save the file _**by doing File->Save As, NOT FILE->SAVE, File->Save does not function correctly in wine**_. Call the new file edid_custom.bin and exit AW Edid Editor.
 
-#####Make linux use the modified edid file on boot.
+####Make linux use the modified edid file on boot.
 
 You can make linux use the modified edid file when starting.
 
@@ -224,7 +227,7 @@ Now you can regenerate your grub.cfg file:
 
 ![grub_refresh](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/grub_refresh.png)
 
-#####Reboot and try the modeline.
+####Reboot and try the modeline.
 
 Reboot the computer. You can do this in the GUI or in the shell like this:
 
@@ -242,7 +245,7 @@ If your monitor goes "out of range", this means your overclock has failed. Rever
 
 Follow the above steps, using a lower overclock.
 
-#####Confirm the monitor is at the right frequency.
+####Confirm the monitor is at the right frequency.
 
 Run the following command:
 
@@ -254,7 +257,7 @@ Your monitor OSD might have the info also.
 
 ![xrandr_query](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/xrandr_query.png)
 
-#####(Optional) Write the edid to the monitor.
+####(Optional) Write the edid to the monitor.
 
 This step is not recommended.
 
@@ -283,7 +286,8 @@ You can verify it was written by reading it again:
 
 `$ sudo ./edid-rw 0 | edid-decode`
 
-###Conclusion
+--------
+##Conclusion
 
 As noted at the start of the guide, if you do not have a Nvidia or Windows PC to test different refresh rates, this can be painful, as you will need to continuously try editing the edid file until you find something that works.
 
