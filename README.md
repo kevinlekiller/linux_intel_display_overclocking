@@ -84,7 +84,6 @@ Optional reading: [Article](https://en.wikipedia.org/wiki/Coordinated_Video_Timi
 Overclocking the monitor will raise the pixel clock frequency.
 
 Pixel clock frequency limits:  
-HDMI 1.0 to 1.2 and DVI have a limit of 165MHz pixel clock frequency.  
 HDMI 1.0, 1.1, 1.2 & DVI = 165MHz  
 HDMI 1.3, 1.4            = 340MHz  
 HDMI 2.0                 = 600MHz  
