@@ -256,7 +256,7 @@ Your monitor OSD might have the info also.
 
 #####(Optional) Write the edid to the monitor.
 
-This step is not recommended. Most people reading this should skip to the next step.
+This step is not recommended.
 
 Some monitors allow writing edid information back into it.  
 The advantage to this is it will survive operating system re-installations, since the information will be inside the monitor.
