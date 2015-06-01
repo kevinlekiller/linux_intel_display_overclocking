@@ -105,7 +105,7 @@ The parameters are: screen\_width screen\_height refresh_rate.
 
 -b uses CVT v1.2 reduced blanking timings - remove this if you use a CRT monitor.  
 If your LCD is old, you might have to use -r instead, which uses CVT v1.1 reduced blanking timings.  
-If it is VERY old (10+ years), then do not use -r or -b, as most of those old LCD's do not support reduces blanking.
+If it is VERY old (10+ years), then do not use -r or -b, as most of those old LCD's do not support reduced blanking.
 
 If you want to get a refresh rate that works well for watching movies or tv, pass the -o argument.  
 The -o argument will for example, convert 72Hz to 71.928Hz, so when you watch 23.976fps content it will play smoothly.
