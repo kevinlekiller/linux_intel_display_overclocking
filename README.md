@@ -293,4 +293,6 @@ You can verify it was written by reading it again:
 
 As noted at the start of the guide, if you do not have a Nvidia or Windows PC to test different refresh rates, this can be painful, as you will need to continuously try editing the edid file until you find something that works.
 
+Side note, if your goal was to bypass the 16-235 color range, you can use this command instead: `xrandr --output DP1 --set "Broadcast RGB" "Full"` replacing DP1 with your output, you can add this command to `~/.xprofile` to have it run on log in.
+
 Hopefully this guide has helped you in some way.
