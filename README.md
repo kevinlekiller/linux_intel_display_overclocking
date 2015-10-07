@@ -13,9 +13,7 @@ This guide will help you overclock your monitor by editing the edid.
 
 It helps if you know the monitor can be overclocked to the refresh rate/timings you desire before starting.  
 If you have access to an Nvidia GPU, those can overclock using xorg.conf, by disabling some verifications.  
-I'm not sure if AMD GPU's can overclock on Linux, it might be possible.  
-If you have access to a Windows operating system, Intel / AMD / Nvidia GPU's can overclock monitors using their driver utilities.  
-It helps knowing this information because it can be tedious to do the trial and error to find the timings with an Intel GPU on Linux.
+I'm not sure if AMD GPU's can overclock on Linux, it might be possible.
 
 --------
 ##Software required:
@@ -26,6 +24,41 @@ It helps knowing this information because it can be tedious to do the trial and 
 * [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine.  
 * [gcc](https://gcc.gnu.org/) This is used to compile cvt12 from source.
 * [cvt12](https://github.com/kevinlekiller/cvt_modeline_calculator_12) Instructions on downloading/compiling will be shown later in the guide.
+
+--------
+##Alternate Guide (2015-10-07):
+
+Note: You can also use this alternate guide to find a working modeline for using the other guide to edit your EDID.
+
+If your monitor has an older EDID version (1.3 or earlier, a monitor without a displayport or hdmi 2.0 connectors for example) it might not have a detailed timing block.
+
+We can get around this by using a script to overclock the monitor when we log in.
+
+First create the modeline you want, you can follow the guide below or follow these links: [compile cvt12 first](https://github.com/kevinlekiller/linux_intel_display_overclocking#compiling-cvt12), [create a modeline](https://github.com/kevinlekiller/linux_intel_display_overclocking#get-a-new-modeline-using-cvt12).
+
+It should look like this:
+
+![modeline_example](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt_readout.png)
+
+Find which port your monitor is attached to by typing `xrandr | grep -Pio '.*?\sconnected'`
+
+You should test the modeline first:
+
+Change the `HDMI1` in the commands below based on the output of the above command.
+
+Note: If your display goes blank or out of range while testing, type in this command to set it to its default timings:
+
+`xrandr --output HDMI1 --auto`
+
+Change the following commands based on the modeline you got.
+
+    xrandr --newmode "1920x1080_72.00_rb"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync
+    xrandr --addmode HDMI1 1920x1080_72.00_rb
+    xrandr --output HDMI1 --mode 1920x1080_72.00_rb
+
+If the display goes out of range, you can [try tuning the modeling](https://github.com/kevinlekiller/linux_intel_display_overclocking/blob/master/README.md#optional-tuning-the-modeline).
+
+Once you have found a working modeline, you can make the above commands run on logon, you can do this by adding those commands to the [~/.xprofile](https://wiki.archlinux.org/index.php/Xprofile) or [~/.xinitrc](https://wiki.archlinux.org/index.php/Xinitrc) files.
 
 --------
 ##Guide:
