@@ -1,67 +1,119 @@
-#Guide for overclocking displays on GNU/Linux with Intel GPU's.
+#Guide for overclocking displays on GNU/Linux with Intel (and possibly other) GPU's.
 
 ##Disclaimer
 
 Use this information at your own risk. I do not claim responsability for any damage you might cause to your equipment, yourself or others.
 
 --------
-##Intro
+##Intro & Notes
 
-As you may already know, you can not overclock your monitor with xorg.conf/xrandr with an Intel GPU on Linux (at least on Haswell or Broadwell GPU's I've tried).
+The first guide "xrandr Guide" will show you how to use xrandr to overclock your monitor, which is done after you log on, so your monitor will be set to its default when booting and can be switched after logging in.
 
-This guide will help you overclock your monitor by editing the edid.
+The second guide "edid Guide" will show you how to edit the "edid", which allows overriding information supplied by the monitor, so you can have the modes you want set when your operating system starts.
 
-It helps if you know the monitor can be overclocked to the refresh rate/timings you desire before starting.  
-If you have access to an Nvidia GPU, those can overclock using xorg.conf, by disabling some verifications.  
-I'm not sure if AMD GPU's can overclock on Linux, it might be possible.
+If your goal was to bypass the 16-235 color range, you can use this command instead: `xrandr --output DP1 --set "Broadcast RGB" "Full"` replacing DP1 with your output, you can add this command to `~/.xprofile` to have it run on log in.
+
+For Nvidia GPUs you need to add `Option "ModeValidation" "AllowNonEdidModes,NoEdidMaxPClkCheck,NoMaxPClkCheck"` to the `"Screen"` section of the `/etc/X11/xorg.conf.d/` conf file (20-nvidia.conf for example).
 
 --------
 ##Software required:
 
-* [xrandr](http://www.x.org/wiki/Projects/XRandR/) This should be already installed on GNU/Linux distros.
-* [gnu coreutils](https://www.gnu.org/software/coreutils/coreutils.html) This should be already installed on GNU/Linux distros.
+* [xrandr](http://www.x.org/wiki/Projects/XRandR/) This should be already installed on GNU/Linux distros.  
+* [gnu coreutils](https://www.gnu.org/software/coreutils/coreutils.html) This should be already installed on GNU/Linux distros.  
+* [gcc](https://gcc.gnu.org/) This is used to compile cvt12 from source.  
+* [cvt12](https://github.com/kevinlekiller/cvt_modeline_calculator_12) Instructions on downloading/compiling will be shown later in the guide.  
+* [wget](https://www.gnu.org/software/wget/) For downloading files.
+
+For the edid guide:
 * [wine](https://www.winehq.org/) This will be used to install a Windows edid editor, since linux edid editors are uncommon. It's possible to hex edit the edid, but it's much more complicated.  
-* [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine.  
-* [gcc](https://gcc.gnu.org/) This is used to compile cvt12 from source.
-* [cvt12](https://github.com/kevinlekiller/cvt_modeline_calculator_12) Instructions on downloading/compiling will be shown later in the guide.
+* [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine.
 
 --------
-##Alternate Guide (2015-10-07):
+##xrandr Guide:
 
-Note: You can also use this alternate guide to find a working modeline for using the other guide to edit your EDID.
+We will find a modeline that works using cvt12 and xrandr and set the mode on login using the `~/.xprofile` file.
 
-If your monitor has an older EDID version (1.3 or earlier, a monitor without a displayport or hdmi 2.0 connectors for example) it might not have a detailed timing block.
+#### Find the port the monitor is connected to:
 
-We can get around this by using a script to overclock the monitor when we log in.
+`$ xrandr | grep -Pio '.*?\sconnected'`
 
-First create the modeline you want, you can follow the guide below or follow these links: [compile cvt12 first](https://github.com/kevinlekiller/linux_intel_display_overclocking#compiling-cvt12), [create a modeline](https://github.com/kevinlekiller/linux_intel_display_overclocking#get-a-new-modeline-using-cvt12).
+![port](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/find_port.png)
 
-It should look like this:
+We are interested in: `HDMI1`
 
-![modeline_example](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt_readout.png)
+#### Compiling cvt12.
 
-Find which port your monitor is attached to by typing `xrandr | grep -Pio '.*?\sconnected'`
+We will compile a modified version of cvt to get access to CVT v1.2 reduced blanking timings. Most distributions use cvt from x.org which only supports CVT 1.1 currently, CVT 1.1 does not allow reduced blanking on any refresh rates other than multiples of 60Hz.
 
-You should test the modeline first:
+Download and compile cvt12:    
+`$ cd ~/ && wget https://raw.githubusercontent.com/kevinlekiller/cvt_modeline_calculator_12/master/cvt12.c && gcc cvt12.c -O2 -o cvt12 -lm -Wall`
 
-Change the `HDMI1` in the commands below based on the output of the above command.
+![cvt12](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt12_compile.png)
+
+#### Get a new modeline using cvt12.
+
+The parameters are: screen\_width screen\_height refresh_rate.
+
+-b uses CVT v1.2 reduced blanking timings - remove this if you use a CRT monitor.  
+If your LCD is old, you might have to use -r instead, which uses CVT v1.1 reduced blanking timings.  
+If it is VERY old (10+ years), then do not use -r or -b, as most of those old LCD's do not support reduced blanking.
+
+If you want to get a refresh rate that works well for watching movies or tv, pass the -o argument, note this requires the -b option.  
+The -o argument will for example, convert 72Hz to 71.928Hz, so when you watch 23.976fps content it will play smoothly.
+
+`$ cd ~/ && ./cvt12 1920 1080 72 -b`  
+
+![cvt_readout](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt_readout.png)
+
+We are looking for this: `Modeline "1920x1080_72.00_rb"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync`
+
+Strip anything after `"1920x1080` in the quotes, so it looks like this: `Modeline "1920x1080"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync`
+
+#### Test the modeline with xrandr:
 
 Note: If your display goes blank or out of range while testing, type in this command to set it to its default timings:
 
 `xrandr --output HDMI1 --auto`
 
-Change the following commands based on the modeline you got.
+Change the following commands based on what you got on the last step.
 
-    xrandr --newmode "1920x1080_72.00_rb"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync
-    xrandr --addmode HDMI1 1920x1080_72.00_rb
-    xrandr --output HDMI1 --mode 1920x1080_72.00_rb
+Create a new mode with xrandr:  
+`xrandr --newmode "1920x1080_72.00_rb"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync`
+
+Move the mode to the "HDMI" output:   
+`xrandr --addmode HDMI1 1920x1080_72.00_rb`
+
+Set your monitor to the specified mode (sets your monitor to 72hz):  
+`xrandr --output HDMI1 --mode 1920x1080_72.00_rb`
 
 If the display goes out of range, you can [try tuning the modeling](https://github.com/kevinlekiller/linux_intel_display_overclocking/blob/master/README.md#optional-tuning-the-modeline).
 
-Once you have found a working modeline, you can make the above commands run on logon, you can do this by adding those commands to the [~/.xprofile](https://wiki.archlinux.org/index.php/Xprofile) or [~/.xinitrc](https://wiki.archlinux.org/index.php/Xinitrc) files.
+#### Set the modeline(s) on logon.
+
+Once you have found working modeline(s), you can add them on logon.
+
+There are multiple ways to do this, I will show one.
+
+Open [`~/.xinitrc`](https://wiki.archlinux.org/index.php/Xinitrc) in a text editor.
+
+Add the lines you want to it, for example:
+
+    xrandr --newmode "1920x1080_72.00_rb"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync
+    xrandr --addmode HDMI1 1920x1080_72.00_rb
+    xrandr --newmode "1920x1080_56.71"  172.5   1920 1952 2648 2680   1080 1102 1113 1135  -hsync -vsync
+    xrandr --addmode HDMI1 1920x1080_56.71
+
+If you want to set a your monitor to a specified mode when logging in, add that also:  
+`xrandr --output HDMI1 --mode 1920x1080_72.00_rb`
+
+Alternatively use [`~/.xprofile`](https://wiki.archlinux.org/index.php/Xprofile) or [systemd](https://wiki.archlinux.org/index.php/Systemd/User) if `~/.xinitrc` is not working.
 
 --------
-##Guide:
+##edid Guide:
+
+This is another guide, if you want the changes above to be more permanent, or if you want all the users on your computer to access the modes.
+
+If your monitor has an older EDID version (1.3 or earlier, a monitor without a displayport or hdmi 2.0 connectors for example) it might not have a detailed timing block, you can use the xrandr guide above instead.
 
 ####Find your GPU.
 
@@ -320,12 +372,3 @@ Once you see it, you can write your custom edid file changing 0 for the number y
 You can verify it was written by reading it again:
 
 `$ sudo ./edid-rw 0 | edid-decode`
-
---------
-##Conclusion
-
-As noted at the start of the guide, if you do not have a Nvidia or Windows PC to test different refresh rates, this can be painful, as you will need to continuously try editing the edid file until you find something that works.
-
-Side note, if your goal was to bypass the 16-235 color range, you can use this command instead: `xrandr --output DP1 --set "Broadcast RGB" "Full"` replacing DP1 with your output, you can add this command to `~/.xprofile` to have it run on log in.
-
-Hopefully this guide has helped you in some way.
