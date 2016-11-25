@@ -11,9 +11,9 @@ The first guide "xrandr Guide" will show you how to use xrandr to overclock your
 
 The second guide "edid Guide" will show you how to edit the "edid", which allows overriding information supplied by the monitor, so you can have the modes you want set when your operating system starts.
 
-If your goal was to bypass the 16-235 color range, you can use this command instead: `xrandr --output DP1 --set "Broadcast RGB" "Full"` replacing DP1 with your output, you can add this command to `~/.xprofile` to have it run on log in.
+If your goal was to bypass the 16-235 color range on Intel GPUs, you can use this command instead: `xrandr --output DP1 --set "Broadcast RGB" "Full"` replacing DP1 with your output, you can add this command to an executable script in your `~/.config/autostart-scripts` folder to have it run on log in.
 
-For Nvidia GPUs you need to add `Option "ModeValidation" "AllowNonEdidModes,NoEdidMaxPClkCheck,NoMaxPClkCheck"` to the `"Screen"` section of the `/etc/X11/xorg.conf.d/` conf file (20-nvidia.conf for example).
+For Nvidia GPUs you need to add `Option "ModeValidation" "AllowNonEdidModes,NoEdidMaxPClkCheck,NoMaxPClkCheck"` to the `"Screen"` section of the `/etc/X11/xorg.conf.d/` conf file (20-nvidia.conf for example). You can then add the Modelines to your xorg.conf file in the `"Monitor"` section.
 
 --------
 ##Software required:
@@ -31,7 +31,7 @@ For the edid guide:
 --------
 ##xrandr Guide:
 
-We will find a modeline that works using cvt12 and xrandr and set the mode on login using the `~/.xprofile` file.
+We will find a modeline that works using cvt12 and xrandr and set the mode on login using an executable script in the `~/.config/autostart-scripts` folder.
 
 #### Find the port the monitor is connected to:
 
@@ -56,10 +56,10 @@ The parameters are: screen\_width screen\_height refresh_rate.
 
 -b uses CVT v1.2 reduced blanking timings - remove this if you use a CRT monitor.  
 If your LCD is old, you might have to use -r instead, which uses CVT v1.1 reduced blanking timings.  
-If it is VERY old (10+ years), then do not use -r or -b, as most of those old LCD's do not support reduced blanking.
 
 If you want to get a refresh rate that works well for watching movies or tv, pass the -o argument, note this requires the -b option.  
-The -o argument will for example, convert 72Hz to 71.928Hz, so when you watch 23.976fps content it will play smoothly.
+The -o argument will for example, convert 72Hz to 71.928Hz, so when you watch 23.976fps content it will play smoothly.  
+Note: If you use [mpv](https://mpv.io/) with [`--video-sync=display-resample`](https://mpv.io/manual/master/#options-video-sync), mpv will automatically correct the speed of the video to match your monitor's refresh rate.
 
 `$ cd ~/ && ./cvt12 1920 1080 72 -b`  
 
@@ -92,21 +92,24 @@ If the display goes out of range, you can [try tuning the modeling](https://gith
 
 Once you have found working modeline(s), you can add them on logon.
 
-There are multiple ways to do this, I will show one.
+There are multiple ways to do this, I will show one, see [here](https://wiki.archlinux.org/index.php/autostarting) for more options.
 
-Open [`~/.xinitrc`](https://wiki.archlinux.org/index.php/Xinitrc) in a text editor.
+Create a script in `~/.config/autostart-scripts/`, for example `~/.config/autostart-scripts/xrandr.sh`
 
 Add the lines you want to it, for example:
 
+    OUTPUT=HDMI1
+    # If you want it to automatically find your monitor, uncomment this (this might not work on multiple monitors):
+    #OUTPUT="$(xrandr | grep -Po "^[HD].+? connected" | grep -Po "^\S+")"
     xrandr --newmode "1920x1080_72.00_rb"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync
-    xrandr --addmode HDMI1 1920x1080_72.00_rb
+    xrandr --addmode "$OUTPUT" 1920x1080_72.00_rb
     xrandr --newmode "1920x1080_56.71"  172.5   1920 1952 2648 2680   1080 1102 1113 1135  -hsync -vsync
-    xrandr --addmode HDMI1 1920x1080_56.71
+    xrandr --addmode "$OUTPUT" 1920x1080_56.71
+
+Make it executable for your user: `chmod u+x ~/.config/autostart-scripts/xrandr.sh`
 
 If you want to set a your monitor to a specified mode when logging in, add that also:  
-`xrandr --output HDMI1 --mode 1920x1080_72.00_rb`
-
-Alternatively use [`~/.xprofile`](https://wiki.archlinux.org/index.php/Xprofile) or [systemd](https://wiki.archlinux.org/index.php/Systemd/User) if `~/.xinitrc` is not working.
+`xrandr --output "$OUTPUT" --mode 1920x1080_72.00_rb`
 
 --------
 ##edid Guide:
@@ -190,10 +193,10 @@ The parameters are: screen\_width screen\_height refresh_rate.
 
 -b uses CVT v1.2 reduced blanking timings - remove this if you use a CRT monitor.  
 If your LCD is old, you might have to use -r instead, which uses CVT v1.1 reduced blanking timings.  
-If it is VERY old (10+ years), then do not use -r or -b, as most of those old LCD's do not support reduced blanking.
 
 If you want to get a refresh rate that works well for watching movies or tv, pass the -o argument, note this requires the -b option.  
-The -o argument will for example, convert 72Hz to 71.928Hz, so when you watch 23.976fps content it will play smoothly.
+The -o argument will for example, convert 72Hz to 71.928Hz, so when you watch 23.976fps content it will play smoothly.  
+Note: If you use [mpv](https://mpv.io/) with [`--video-sync=display-resample`](https://mpv.io/manual/master/#options-video-sync), mpv will automatically correct the speed of the video to match your monitor's refresh rate.
 
 `$ cd ~/ && ./cvt12 1920 1080 72 -b`  
 
