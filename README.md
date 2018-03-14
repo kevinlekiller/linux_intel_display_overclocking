@@ -1,11 +1,11 @@
-#Guide for overclocking displays on GNU/Linux with Intel (and possibly other) GPU's.
+# Guide for overclocking displays on GNU/Linux with Intel (and possibly other) GPU's.
 
-##Disclaimer
+## Disclaimer
 
 Use this information at your own risk. I do not claim responsability for any damage you might cause to your equipment, yourself or others.
 
 --------
-##Intro & Notes
+## Intro & Notes
 
 The first guide "xrandr Guide" will show you how to use xrandr to overclock your monitor, which is done after you log on, so your monitor will be set to its default when booting and can be switched after logging in.
 
@@ -16,7 +16,7 @@ If your goal was to bypass the 16-235 color range on Intel GPUs, you can use thi
 For Nvidia GPUs you need to add `Option "ModeValidation" "AllowNonEdidModes,NoEdidMaxPClkCheck,NoMaxPClkCheck"` to the `"Screen"` section of the `/etc/X11/xorg.conf.d/` conf file (20-nvidia.conf for example). You can then add the Modelines to your xorg.conf file in the `"Monitor"` section.
 
 --------
-##Software required:
+## Software required:
 
 * [xrandr](http://www.x.org/wiki/Projects/XRandR/) This should be already installed on GNU/Linux distros.  
 * [gnu coreutils](https://www.gnu.org/software/coreutils/coreutils.html) This should be already installed on GNU/Linux distros.  
@@ -29,7 +29,7 @@ For the edid guide:
 * [AW Edid Editor](http://www.analogway.com/en/products/software-and-tools/aw-edid-editor/#dl) I will use this edid editor throughout the guide, it might be possible to use an alternative edid editor, although the guide might not be as simple to use. This edid editor installs without any issues in wine.
 
 --------
-##xrandr Guide:
+## xrandr Guide:
 
 We will find a modeline that works using cvt12 and xrandr and set the mode on login using an executable script in the `~/.config/autostart-scripts` folder.
 
@@ -112,13 +112,13 @@ If you want to set a your monitor to a specified mode when logging in, add that 
 `xrandr --output "$OUTPUT" --mode 1920x1080_72.00_rb`
 
 --------
-##edid Guide:
+## edid Guide:
 
 This is another guide, if you want the changes above to be more permanent, or if you want all the users on your computer to access the modes.
 
 If your monitor has an older EDID version (1.3 or earlier, a monitor without a displayport or hdmi 2.0 connectors for example) it might not have a detailed timing block, you can use the xrandr guide above instead.
 
-####Find your GPU.
+#### Find your GPU.
 
 `$ lspci | grep -Pi 'intel.*graphics'`
 
@@ -126,7 +126,7 @@ If your monitor has an older EDID version (1.3 or earlier, a monitor without a d
 
 We are interested in the following: `00:02.0`
 
-####Find the port the monitor is connected to:
+#### Find the port the monitor is connected to:
 
 `$ xrandr | grep -Pio '.*?\sconnected'`
 
@@ -134,7 +134,7 @@ We are interested in the following: `00:02.0`
 
 We are interested in: `HDMI1`
 
-####Find the edid file using the above information:
+#### Find the edid file using the above information:
 
 `$ sudo find /sys/devices/ -name edid`
 
@@ -146,11 +146,11 @@ We are interested in:
 Note the `00:02.0` and `HDMI-A-1`, which correspond to the information we got in the above steps.  
 Remember the `HDMI-A-1`, which we will require later on.
 
-####Copy the edid to your home folder:
+#### Copy the edid to your home folder:
 
 `$ sudo cp /sys/devices/pci0000:00/0000:00:02.0/drm/card0/card0-HDMI-A-1/edid ~/edid.bin`
 
-####Print the edid:
+#### Print the edid:
 
 `$ cat ~/edid.bin && echo ""`
 
@@ -160,7 +160,7 @@ You will see mostly unintelligible text, you might see the monitor's model numbe
 You can use this to confirm this is indeed the edid file for the monitor.  
 If not, we can confirm in one of the following steps.
 
-####Compiling cvt12.
+#### Compiling cvt12.
 
 We will compile a modified version of cvt to get access to CVT v1.2 reduced blanking timings. Most distributions use cvt from x.org which only supports CVT 1.1 currently, CVT 1.1 does not allow reduced blanking on any refresh rates other than multiples of 60Hz.
 
@@ -169,7 +169,7 @@ Download and compile cvt12:
 
 ![cvt12](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/cvt12_compile.png)
 
-####Notes on reduced blanking and pixel clock limits.
+#### Notes on reduced blanking and pixel clock limits.
 
 Optional reading: [Article](https://en.wikipedia.org/wiki/Coordinated_Video_Timings#Reduced_blanking) on wikipedia about reduced blanking.
 
@@ -187,7 +187,7 @@ By using reduced blanking we can get a higher overclock.
 
 For example, without reduced blanking 71Hz is 207.25MHz pixel clock. With reduced blanking, this drops to 164.96MHz. Unfortunately we can't get to 72Hz without manually tuning the modeline if we are limited to 165MHz.
 
-####Get a new modeline using cvt12.
+#### Get a new modeline using cvt12.
 
 The parameters are: screen\_width screen\_height refresh_rate.
 
@@ -206,7 +206,7 @@ We are looking for this: `Modeline "1920x1080_72.00_rb"  167.28  1920 1968 2000 
 
 Strip anything after `"1920x1080` in the quotes, so it looks like this: `Modeline "1920x1080"  167.28  1920 1968 2000 2080  1080 1103 1108 1117 +hsync -vsync`
 
-####Convert the modeline into timings.
+#### Convert the modeline into timings.
 
 Head to [this page](http://www.epanorama.net/faq/vga2rgb/calc.html)
 
@@ -220,7 +220,7 @@ Keep this web page open, we will need it in the next steps.
 
 ![video_timing_calculator](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/video_timing_calculator.png)
 
-####(Optional) Tuning the modeline 
+#### (Optional) Tuning the modeline 
 
 This step is not recommended unless you are desperate to get the overclock you want but limited by pixel clock frequency. Skip this step if you are not.
 
@@ -234,7 +234,7 @@ Change 167.11MHz to 164.50MHz or so, and play around with the porch and sync val
 
 For example after some messing around I got this: `Modeline "1920x1080"   164.50   1920 1962 2001 2079   1080 1088 1094 1100  +hsync -vsync`
 
-####Open the edid file in AW Edid Editor.
+#### Open the edid file in AW Edid Editor.
 
 You can start the program and open the file manually or start it from the shell with the file as a parameter:  
 
@@ -242,7 +242,7 @@ You can start the program and open the file manually or start it from the shell 
 
 You might be able to confirm this is the edid for your monitor by using the information on the top left of the GUI in the Standard Data tab or in the Detailed Data tab, look for Display Product Name.
 
-####Change the "Detailed Timings".
+#### Change the "Detailed Timings".
 
 Head to the "CEA Extension" tab.
 
@@ -271,7 +271,7 @@ Change all these settings with the information in the previous step.
 
 ![detailed_timings](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/detailed_timings.png)
 
-####(Optional) Change the "Prefered Timings".
+#### (Optional) Change the "Prefered Timings".
 
 Head to the Detailed Data tab.
 
@@ -283,11 +283,11 @@ Use the settings we used in the last step.
 
 ![prefered_timings](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/preferred_timings.png)
 
-####Saves changes.
+#### Saves changes.
 
 Save the file _**by doing File->Save As, NOT FILE->SAVE, File->Save does not function correctly in wine**_. Call the new file edid_custom.bin and exit AW Edid Editor.
 
-####Make linux use the modified edid file on boot.
+#### Make linux use the modified edid file on boot.
 
 You can make linux use the modified edid file when starting.
 
@@ -317,7 +317,7 @@ Now you can regenerate your grub.cfg file:
 
 ![grub_refresh](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/grub_refresh.png)
 
-####Reboot and try the modeline.
+#### Reboot and try the modeline.
 
 Reboot the computer. You can do this in the GUI or in the shell like this:
 
@@ -335,7 +335,7 @@ If your monitor goes "out of range", this means your overclock has failed. Rever
 
 Follow the above steps, using a lower overclock.
 
-####Confirm the monitor is at the right frequency.
+#### Confirm the monitor is at the right frequency.
 
 Run the following command:
 
@@ -347,7 +347,7 @@ Your monitor OSD might have the info also.
 
 ![xrandr_query](https://raw.githubusercontent.com/kevinlekiller/linux_intel_monitor_overclocking/images/xrandr_query.png)
 
-####(Optional) Write the edid to the monitor.
+#### (Optional) Write the edid to the monitor.
 
 This step is not recommended.
 
