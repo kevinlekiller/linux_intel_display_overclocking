@@ -15,6 +15,8 @@ If your goal was to bypass the 16-235 color range on Intel GPUs, you can use thi
 
 For Nvidia GPUs you need to add `Option "ModeValidation" "AllowNonEdidModes,NoEdidMaxPClkCheck,NoMaxPClkCheck"` to the `"Screen"` section of the `/etc/X11/xorg.conf.d/` conf file (20-nvidia.conf for example). You can then add the Modelines to your xorg.conf file in the `"Monitor"` section.
 
+On AMD GPUs with the mesa driver, it might be required to enable "scaling mode", run `xrandr --verbose`, look for "scaling mode: None supported: None, Full, Center, Full aspect", run `xrandr --output HDMI-A-0 --set "scaling mode" "Full"`.
+
 --------
 ## Software required:
 
