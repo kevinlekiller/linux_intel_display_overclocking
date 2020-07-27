@@ -11,7 +11,7 @@ The first guide "xrandr Guide" will show you how to use xrandr to overclock your
 
 The second guide "edid Guide" will show you how to edit the "edid", which allows overriding information supplied by the monitor, so you can have the modes you want set when your operating system starts.
 
-On Intel GPUs, if you're trying to get a mode like 3840x2160@60Hz working through a Displayport to HDMI 2.0 adapter, but you only get out of range or not output on your screen: run `xrandr --verbose`, look for "max bpc: 12 range: (6, 12)", by default the Intel GPU will try to push the output to 10 or 12 bits, at 3840x2160@60 this results in too much bandwith for HDMI 2.0, so you need to change "max bpc" to 8 bits: `xrandr --output DP1 --set "max bpc" "8"`, then set your mode to 3840x2160@60.
+On Intel GPUs, if you're trying to get a mode like 3840x2160@60Hz working through a Displayport to HDMI 2.0 adapter, but you only get out of range or not output on your screen: run `xrandr --verbose`, look for "max bpc: 12 range: (6, 12)", by default the Intel GPU will try to push the output to 10 or 12 bits, at 3840x2160@60 this results in too much bandwith for HDMI 2.0, so you need to change "max bpc" to 8 bits: `xrandr --output DP1 --set "max bpc" "8"`, then set your mode to 3840x2160@60. If you get no HDMI sound output, try making a mode like this: `cvt12 3840 2160 60 -r -o`.
 
 If your goal was to bypass the 16-235 color range on Intel GPUs, you can use this command instead: `xrandr --output DP1 --set "Broadcast RGB" "Full"` replacing DP1 with your output, you can add this command to an executable script in your `~/.config/autostart-scripts` folder to have it run on log in.
 
